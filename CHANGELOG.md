@@ -13,6 +13,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Additional and custom tuning presets.
 - Reference tone generator.
 
+## [0.2.0] - 2026-08-07
+
+### Added
+
+- Premium Blake Labs visual identity inspired by the product concept.
+- Blake Labs alien brand mark inside the tuner UI.
+- Branded adaptive launcher icon.
+- Branded Android 12+ splash screen.
+- Premium tuner hero card with large note, frequency, cents, status and analog-style gauge.
+- Dedicated manual-string and tuning-preset controls.
+- Quick settings for Guitar / Chromatic mode and A4 calibration.
+- Clear privacy messaging inside the product UI.
+
+### Changed
+
+- Reworked the color system around the Blake Labs black + acid-lime identity.
+- Improved information hierarchy so note, tuning direction and lock state are readable at a glance.
+- Refactored the screen entry point so the public `TunerScreen` contract remains stable while the premium implementation can evolve independently.
+
+### Design principle
+
+- Free. Offline. No ads. No trackers. No nonsense.
+- A guitar tuner should not require closing a casino banner before tuning an E string.
+
 ## [0.1.0] - 2026-08-07
 
 ### Added
