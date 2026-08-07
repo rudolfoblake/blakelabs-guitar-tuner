@@ -5,15 +5,23 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
+/**
+ * Blake Labs visual tokens.
+ *
+ * The palette deliberately stays close to true black so the UI feels at home on OLED panels,
+ * while the alien-mark lime is reserved for state, focus and brand moments.
+ */
 object BlakeColors {
-    val Background = Color(0xFF070908)
-    val Surface = Color(0xFF0D110F)
-    val SurfaceRaised = Color(0xFF121713)
-    val Border = Color(0xFF263029)
-    val Primary = Color(0xFF7DFF9B)
-    val PrimaryMuted = Color(0xFF2D6B3C)
-    val Text = Color(0xFFF1F7F2)
-    val TextMuted = Color(0xFF8F9A92)
+    val Background = Color(0xFF000000)
+    val Surface = Color(0xFF090B09)
+    val SurfaceRaised = Color(0xFF101310)
+    val Border = Color(0xFF1A201A)
+    val BorderStrong = Color(0xFF303830)
+    val Primary = Color(0xFFA7F20A)
+    val PrimarySoft = Color(0xFF7DB600)
+    val Text = Color(0xFFF5F7F2)
+    val TextMuted = Color(0xFF9AA398)
+    val TextDim = Color(0xFF626A61)
     val Warning = Color(0xFFFFC857)
     val Error = Color(0xFFFF6B6B)
 }

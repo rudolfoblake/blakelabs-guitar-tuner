@@ -28,7 +28,11 @@ The main screen answers three questions immediately:
 2. **Am I flat or sharp?**
 3. **Am I actually in tune yet?**
 
-The app shows the target note, detected frequency, cents offset, a large gauge, and an explicit status. Green means done. No decoding tiny needles while holding a guitar in one hand.
+The app shows the target note, detected frequency, cents offset, a large gauge, and an explicit status. The premium Blake Labs visual system uses true black, the alien-mark lime, a visible ±3-cent lock zone and redundant tuning feedback so nobody has to decode a tiny needle while holding a guitar in one hand.
+
+The launcher icon, branded launch screen and in-app identity all reuse the same scalable Blake Labs alien mark.
+
+Design system: [`docs/DESIGN.md`](docs/DESIGN.md).
 
 ## Architecture
 
