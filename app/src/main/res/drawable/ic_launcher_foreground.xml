@@ -3,17 +3,59 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+
+    <!-- Outer Blake Labs lime contour. -->
+    <path
+        android:fillColor="#A7F20A"
+        android:pathData="M54,10 C74,10 84,26 81,47 C78,67 66,84 54,92 C42,84 30,67 27,47 C24,26 34,10 54,10 Z" />
+
+    <!-- Black keyline creates the double-outline character of the original mark. -->
+    <path
+        android:fillColor="#020302"
+        android:pathData="M54,13 C72,13 81,28 78,46 C75.5,64 64,80 54,87 C44,80 32.5,64 30,46 C27,28 36,13 54,13 Z" />
+
+    <!-- Inner head. -->
+    <path
+        android:fillColor="#A7F20A"
+        android:pathData="M54,16 C70,16 78,29 75.5,46 C73.2,61.5 63,76 54,82.5 C45,76 34.8,61.5 32.5,46 C30,29 38,16 54,16 Z" />
+
+    <!-- Left eye. -->
+    <path
+        android:fillColor="#020302"
+        android:pathData="M37,39 C30,39 27,44 29,50.5 C31,57 36.5,62 43,62 C47,62 49,60 48,56 C46.8,49.5 42,41 37,39 Z" />
+
+    <!-- Right eye. -->
+    <path
+        android:fillColor="#020302"
+        android:pathData="M71,39 C78,39 81,44 79,50.5 C77,57 71.5,62 65,62 C61,62 59,60 60,56 C61.2,49.5 66,41 71,39 Z" />
+
+    <!-- Eye highlights. -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M35.5,44 C37.8,43.3 40.3,44.5 41.2,46.5 C42,48.4 40.7,49.8 38.8,49.2 C36.7,48.5 34.6,46.8 34.2,45.4 C34,44.8 34.5,44.3 35.5,44 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M44,50 C45.4,49.7 46.6,50.5 46.8,51.6 C47,52.6 46.2,53.2 45.2,52.9 C44,52.6 43.2,51.7 43.2,51 C43.2,50.5 43.5,50.1 44,50 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M72.5,44 C70.2,43.3 67.7,44.5 66.8,46.5 C66,48.4 67.3,49.8 69.2,49.2 C71.3,48.5 73.4,46.8 73.8,45.4 C74,44.8 73.5,44.3 72.5,44 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M64,50 C62.6,49.7 61.4,50.5 61.2,51.6 C61,52.6 61.8,53.2 62.8,52.9 C64,52.6 64.8,51.7 64.8,51 C64.8,50.5 64.5,50.1 64,50 Z" />
+
+    <!-- Nose. -->
+    <path
+        android:fillColor="#020302"
+        android:pathData="M50.5,66 C51.8,66 52.8,66.8 52.8,67.7 C52.8,68.5 51.9,69.1 50.8,69 C49.5,68.9 48.6,68.1 48.7,67.3 C48.8,66.6 49.4,66 50.5,66 Z" />
+    <path
+        android:fillColor="#020302"
+        android:pathData="M57.5,66 C56.2,66 55.2,66.8 55.2,67.7 C55.2,68.5 56.1,69.1 57.2,69 C58.5,68.9 59.4,68.1 59.3,67.3 C59.2,66.6 58.6,66 57.5,66 Z" />
+
+    <!-- Smile. -->
     <path
         android:fillColor="#00000000"
-        android:pathData="M34,25 L34,48 C34,59 43,68 54,68 C65,68 74,59 74,48 L74,25"
-        android:strokeColor="#7DFF9B"
+        android:pathData="M44,72 C49,76.5 59,76.5 64,72"
+        android:strokeColor="#020302"
         android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:strokeWidth="7" />
-    <path
-        android:fillColor="#7DFF9B"
-        android:pathData="M50,65 L58,65 L58,88 L50,88 Z" />
-    <path
-        android:fillColor="#7DFF9B"
-        android:pathData="M31,21 L41,21 L41,29 L31,29 Z M67,21 L77,21 L77,29 L67,29 Z" />
+        android:strokeWidth="2" />
 </vector>
