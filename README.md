@@ -1,0 +1,130 @@
+# Blake Labs Guitar Tuner
+
+**A precise Android guitar tuner. Free. Offline. No ads. No trackers. No account. No bullshit.**
+
+Because somehow humanity managed to put a banner ad between a guitarist and an E string.
+
+Blake Labs Guitar Tuner is a small, privacy-first Android tuner built for fast visual feedback and reliable pitch detection. The microphone signal is analyzed entirely on-device and is never uploaded or stored.
+
+## What it does
+
+- **Guitar mode** with automatic string detection or manual string locking.
+- **Chromatic mode** for anything that makes a reasonably stable note.
+- **Standard, Drop D and DADGAD** presets.
+- **YIN-based pitch detection** implemented in-project, with no DSP black box.
+- **±3 cent in-tune lock** with clear flat / in-tune / sharp feedback.
+- **Median smoothing** to keep the needle useful instead of caffeinated.
+- **48 kHz capture** with 44.1 kHz fallback.
+- **A4 calibration from 430 to 450 Hz**.
+- **Haptic confirmation** when tuning locks.
+- **Fully offline** operation.
+- **No ads, analytics, telemetry, sign-in, subscriptions or mysterious cloud "AI tuning".**
+
+## UI philosophy
+
+The main screen answers three questions immediately:
+
+1. **What note am I closest to?**
+2. **Am I flat or sharp?**
+3. **Am I actually in tune yet?**
+
+The app shows the target note, detected frequency, cents offset, a large gauge, and an explicit status. Green means done. No decoding tiny needles while holding a guitar in one hand.
+
+## Architecture
+
+```text
+Microphone
+   │
+   ▼
+AudioRecord (mono PCM16)
+   │
+   ▼
+PitchDetector (YIN / CMNDF)
+   │
+   ▼
+Median stabilization
+   │
+   ▼
+MusicTheory (Hz ↔ MIDI ↔ cents)
+   │
+   ▼
+TunerViewModel
+   │
+   ▼
+Jetpack Compose UI
+```
+
+More detail: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
+## Build
+
+Requirements:
+
+- Android Studio with Android SDK 36
+- JDK 17+
+- Gradle 9.5 if building without the wrapper JAR
+
+The project targets Android API 36 and supports Android 8.0 / API 26 and newer.
+
+Windows PowerShell:
+
+```powershell
+.\tools\build-debug.ps1
+```
+
+macOS / Linux:
+
+```bash
+./tools/build-debug.sh
+```
+
+The helper downloads the pinned Gradle distribution into `.gradle-local/` when needed. Android Studio can also import the project normally.
+
+Debug APK:
+
+```text
+app/build/outputs/apk/debug/app-debug.apk
+```
+
+> CI is intentionally not configured yet. We are building the instrument before building a tiny bureaucracy around the instrument.
+
+## Tuning accuracy
+
+The current detector is optimized for monophonic guitar-range signals. A clean pluck near the phone microphone works best. Accuracy depends on microphone hardware, ambient noise, harmonics, string attack and the physical instrument.
+
+The UI considers a note **in tune at ±3 cents** with sufficient detector confidence. That threshold is intentionally stricter than "eh, close enough" but still practical for a phone microphone.
+
+## Privacy
+
+The app requests microphone access because, regrettably, Android has not yet invented telepathy.
+
+Audio is processed in memory on the device. It is not recorded to disk, uploaded, transmitted, monetized, analyzed by a third party, or used to sell you guitar picks at 03:00.
+
+See [`PRIVACY.md`](PRIVACY.md).
+
+## Roadmap
+
+Likely next steps:
+
+- strobe display mode;
+- more alternate tunings and custom presets;
+- configurable cents tolerance;
+- landscape / tablet polish;
+- optional reference tone generator;
+- measured device-level latency and calibration work;
+- accessibility and localization pass;
+- release signing and Play Store packaging if we ever feel like dealing with that circus.
+
+## Contributing
+
+Issues and pull requests are welcome. Keep the core promise intact: **fast, accurate, local and ad-free**.
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+## License
+
+MIT. See [`LICENSE`](LICENSE).
+
+---
+
+Built by **Blake Labs** for musicians who would like to tune a guitar without first closing three pop-ups.
