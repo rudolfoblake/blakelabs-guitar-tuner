@@ -70,7 +70,6 @@ internal fun HeroTunerCard(state: TunerViewModel.UiState) {
                                 statusColor.copy(alpha = if (state.isInTune) 0.115f else 0.045f),
                                 Color.Transparent,
                             ),
-                            center = Offset(520f, 420f),
                             radius = 640f,
                         ),
                     ),
