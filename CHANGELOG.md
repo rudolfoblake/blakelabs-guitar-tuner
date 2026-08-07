@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+### Added
+
+- Blake Labs alien mark rebuilt as a scalable Android vector and used by the installed launcher icon and in-app branding.
+- Premium branded launch screen with the project's free/offline/no-ads promise.
+- Dedicated settings view for A4 calibration, tuner mode, haptic feedback and privacy information.
+- Signal and detector-lock meters on the main tuning surface.
+- Scroll-safe layout for shorter Android displays.
+
+### Changed
+
+- Reworked the tuner visual system around OLED black, Blake Labs lime, quieter surfaces and stronger information hierarchy.
+- Enlarged and refined the tuning gauge with a visible ±3-cent lock zone, smoother needle treatment and clearer cents readout.
+- Rebuilt string selection, tuning presets, mode selection and microphone controls to follow the premium Blake Labs UI direction.
+- Updated launcher and system theme colors to match the Blake Labs mark.
+
 ### Planned
 
 - Physical-device tuning validation across multiple Android microphones.
