@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,10 +22,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
@@ -43,12 +44,14 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.blakelabs.guitartuner.R
 import com.blakelabs.guitartuner.TunerViewModel
 import java.util.Locale
 import kotlin.math.PI
@@ -81,12 +84,14 @@ fun TunerScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(BlakeColors.Background)
             .statusBarsPadding()
             .navigationBarsPadding()
-            .padding(horizontal = 20.dp, vertical = 12.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 18.dp, vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Header(
+        BrandHeader(
             listening = state.listening,
             shouldListen = shouldListen,
             onListeningChange = onListeningChange,
@@ -94,33 +99,40 @@ fun TunerScreen(
 
         Spacer(Modifier.height(18.dp))
 
-        ModeSelector(
-            selected = state.mode,
-            onSelected = onModeChange,
+        PresetHeader(
+            mode = state.mode,
+            preset = state.preset,
+            onPresetChange = onPresetChange,
         )
 
-        Spacer(Modifier.height(22.dp))
+        Spacer(Modifier.height(8.dp))
 
         if (!microphoneGranted) {
             MicrophonePermissionCard(onRequestMicrophone)
-            Spacer(Modifier.weight(1f))
         } else {
-            TunerReadout(state)
+            TunerHero(state)
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(14.dp))
 
             if (state.mode == TunerViewModel.Mode.GUITAR) {
-                GuitarControls(
+                ManualStrings(
                     state = state,
-                    onPresetChange = onPresetChange,
                     onStringSelected = onStringSelected,
                 )
-                Spacer(Modifier.height(14.dp))
+                Spacer(Modifier.height(12.dp))
+                TuningPresets(
+                    selected = state.preset,
+                    onPresetChange = onPresetChange,
+                )
             }
 
-            CalibrationControl(
+            Spacer(Modifier.height(12.dp))
+
+            QuickSettings(
+                mode = state.mode,
                 a4Hz = state.a4Hz,
-                onChange = onA4Change,
+                onModeChange = onModeChange,
+                onA4Change = onA4Change,
             )
 
             state.error?.let { message ->
@@ -132,22 +144,23 @@ fun TunerScreen(
                     textAlign = TextAlign.Center,
                 )
             }
-
-            Spacer(Modifier.weight(1f))
         }
 
+        Spacer(Modifier.height(18.dp))
         Text(
-            text = "NO ADS  •  NO TRACKERS  •  NO NONSENSE",
+            text = "FREE  •  OFFLINE  •  NO ADS  •  NO NONSENSE",
             color = BlakeColors.TextMuted,
-            fontSize = 10.sp,
-            letterSpacing = 1.2.sp,
-            modifier = Modifier.padding(bottom = 6.dp),
+            fontSize = 9.sp,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 1.25.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(bottom = 8.dp),
         )
     }
 }
 
 @Composable
-private fun Header(
+private fun BrandHeader(
     listening: Boolean,
     shouldListen: Boolean,
     onListeningChange: (Boolean) -> Unit,
@@ -157,32 +170,54 @@ private fun Header(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Column {
-            Text(
-                text = "BLAKE LABS",
-                color = BlakeColors.Primary,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 2.0.sp,
-            )
-            Text(
-                text = "GUITAR TUNER",
-                color = BlakeColors.Text,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold,
-                letterSpacing = 0.5.sp,
-            )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Surface(
+                shape = CircleShape,
+                color = BlakeColors.SurfaceRaised,
+                modifier = Modifier
+                    .size(42.dp)
+                    .border(1.dp, BlakeColors.Primary.copy(alpha = 0.45f), CircleShape),
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_blake_alien),
+                    contentDescription = "Blake Labs",
+                    modifier = Modifier.padding(5.dp),
+                )
+            }
+
+            Spacer(Modifier.width(10.dp))
+
+            Column {
+                Text(
+                    text = "BLAKE LABS",
+                    color = BlakeColors.TextMuted,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 2.2.sp,
+                )
+                Text(
+                    text = "GUITAR TUNER",
+                    color = BlakeColors.Primary,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 0.8.sp,
+                )
+            }
         }
 
         Surface(
             shape = RoundedCornerShape(999.dp),
             color = if (shouldListen) BlakeColors.SurfaceRaised else BlakeColors.Surface,
             modifier = Modifier
-                .border(1.dp, BlakeColors.Border, RoundedCornerShape(999.dp))
+                .border(
+                    1.dp,
+                    if (shouldListen) BlakeColors.Primary.copy(alpha = 0.38f) else BlakeColors.Border,
+                    RoundedCornerShape(999.dp),
+                )
                 .clickable { onListeningChange(!shouldListen) },
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                modifier = Modifier.padding(horizontal = 11.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(
@@ -195,10 +230,11 @@ private fun Header(
                 )
                 Spacer(Modifier.width(7.dp))
                 Text(
-                    text = if (shouldListen) "MIC ON" else "MIC OFF",
-                    color = BlakeColors.Text,
-                    fontSize = 11.sp,
+                    text = if (shouldListen) "LIVE" else "PAUSED",
+                    color = if (shouldListen) BlakeColors.Text else BlakeColors.TextMuted,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.7.sp,
                 )
             }
         }
@@ -206,44 +242,37 @@ private fun Header(
 }
 
 @Composable
-private fun ModeSelector(
-    selected: TunerViewModel.Mode,
-    onSelected: (TunerViewModel.Mode) -> Unit,
+private fun PresetHeader(
+    mode: TunerViewModel.Mode,
+    preset: TunerViewModel.TuningPreset,
+    onPresetChange: (TunerViewModel.TuningPreset) -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(BlakeColors.Surface, RoundedCornerShape(14.dp))
-            .border(1.dp, BlakeColors.Border, RoundedCornerShape(14.dp))
-            .padding(4.dp),
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        TunerViewModel.Mode.entries.forEach { mode ->
-            val active = mode == selected
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .background(
-                        color = if (active) BlakeColors.SurfaceRaised else Color.Transparent,
-                        shape = RoundedCornerShape(10.dp),
-                    )
-                    .clickable { onSelected(mode) }
-                    .padding(vertical = 10.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = if (mode == TunerViewModel.Mode.GUITAR) "GUITAR" else "CHROMATIC",
-                    color = if (active) BlakeColors.Primary else BlakeColors.TextMuted,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp,
-                )
-            }
+        Text(
+            text = if (mode == TunerViewModel.Mode.GUITAR) preset.label.uppercase() else "CHROMATIC",
+            color = BlakeColors.Primary,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.4.sp,
+            modifier = Modifier
+                .clickable(enabled = mode == TunerViewModel.Mode.GUITAR) {
+                    val presets = TunerViewModel.TuningPreset.entries
+                    onPresetChange(presets[(preset.ordinal + 1) % presets.size])
+                }
+                .padding(horizontal = 10.dp, vertical = 5.dp),
+        )
+        if (mode == TunerViewModel.Mode.GUITAR) {
+            Text("⌄", color = BlakeColors.Primary, fontSize = 15.sp)
         }
     }
 }
 
 @Composable
-private fun TunerReadout(state: TunerViewModel.UiState) {
+private fun TunerHero(state: TunerViewModel.UiState) {
     val statusColor by animateColorAsState(
         targetValue = when (state.status) {
             TunerViewModel.PitchStatus.IN_TUNE -> BlakeColors.Primary
@@ -254,23 +283,31 @@ private fun TunerReadout(state: TunerViewModel.UiState) {
         label = "statusColor",
     )
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(BlakeColors.Surface, RoundedCornerShape(24.dp))
+            .border(1.dp, BlakeColors.Border, RoundedCornerShape(24.dp))
+            .padding(horizontal = 18.dp, vertical = 18.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         Text(
             text = state.noteLabel,
             color = if (state.frequencyHz == null) BlakeColors.TextMuted else BlakeColors.Text,
-            fontSize = 78.sp,
-            lineHeight = 80.sp,
+            fontSize = 76.sp,
+            lineHeight = 78.sp,
             fontWeight = FontWeight.Black,
             letterSpacing = (-2).sp,
         )
 
         Text(
             text = state.frequencyHz?.let { "${formatHz(it)} Hz" } ?: "Play a string",
-            color = BlakeColors.TextMuted,
-            fontSize = 14.sp,
+            color = if (state.frequencyHz == null) BlakeColors.TextMuted else BlakeColors.Primary,
+            fontSize = 17.sp,
+            fontWeight = FontWeight.SemiBold,
         )
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(8.dp))
 
         TunerGauge(
             cents = state.cents.toFloat(),
@@ -279,46 +316,71 @@ private fun TunerReadout(state: TunerViewModel.UiState) {
         )
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 6.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text("-50", color = BlakeColors.TextMuted, fontSize = 11.sp)
-            Text("0", color = BlakeColors.TextMuted, fontSize = 11.sp)
+            Text("-25", color = BlakeColors.TextMuted, fontSize = 11.sp)
+            Text("0", color = BlakeColors.Primary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            Text("+25", color = BlakeColors.TextMuted, fontSize = 11.sp)
             Text("+50", color = BlakeColors.TextMuted, fontSize = 11.sp)
         }
 
+        Spacer(Modifier.height(8.dp))
+
+        Text(
+            text = if (state.frequencyHz == null) "—" else String.format(Locale.US, "%+.1f", state.cents),
+            color = if (state.frequencyHz == null) BlakeColors.TextMuted else BlakeColors.Text,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            text = "CENTS",
+            color = BlakeColors.TextMuted,
+            fontSize = 9.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.4.sp,
+        )
+
         Spacer(Modifier.height(12.dp))
 
-        val statusText = when (state.status) {
-            TunerViewModel.PitchStatus.WAITING -> "LISTENING"
-            TunerViewModel.PitchStatus.FLAT -> "FLAT  •  TUNE UP"
-            TunerViewModel.PitchStatus.IN_TUNE -> "IN TUNE"
-            TunerViewModel.PitchStatus.SHARP -> "SHARP  •  TUNE DOWN"
-        }
+        StatusPill(
+            status = state.status,
+            color = statusColor,
+        )
+    }
+}
 
-        Surface(
-            shape = RoundedCornerShape(999.dp),
-            color = statusColor.copy(alpha = 0.12f),
-            modifier = Modifier.border(1.dp, statusColor.copy(alpha = 0.65f), RoundedCornerShape(999.dp)),
-        ) {
-            Text(
-                text = statusText,
-                color = statusColor,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.2.sp,
-                modifier = Modifier.padding(horizontal = 18.dp, vertical = 9.dp),
-            )
-        }
+@Composable
+private fun StatusPill(
+    status: TunerViewModel.PitchStatus,
+    color: Color,
+) {
+    val text = when (status) {
+        TunerViewModel.PitchStatus.WAITING -> "LISTENING"
+        TunerViewModel.PitchStatus.FLAT -> "FLAT  •  TUNE UP"
+        TunerViewModel.PitchStatus.IN_TUNE -> "✓  IN TUNE"
+        TunerViewModel.PitchStatus.SHARP -> "SHARP  •  TUNE DOWN"
+    }
 
-        if (state.frequencyHz != null) {
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = String.format(Locale.US, "%+.1f cents", state.cents),
-                color = BlakeColors.TextMuted,
-                fontSize = 13.sp,
-            )
-        }
+    Surface(
+        shape = RoundedCornerShape(999.dp),
+        color = color.copy(alpha = 0.10f),
+        modifier = Modifier
+            .fillMaxWidth(0.72f)
+            .border(1.dp, color.copy(alpha = 0.78f), RoundedCornerShape(999.dp)),
+    ) {
+        Text(
+            text = text,
+            color = color,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Black,
+            letterSpacing = 1.2.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 11.dp),
+        )
     }
 }
 
@@ -330,14 +392,14 @@ private fun TunerGauge(
 ) {
     val animatedCents by animateFloatAsState(
         targetValue = cents.coerceIn(-50f, 50f),
-        animationSpec = spring(dampingRatio = 0.76f, stiffness = 420f),
+        animationSpec = spring(dampingRatio = 0.78f, stiffness = 440f),
         label = "needle",
     )
 
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp)
+            .height(132.dp)
             .semantics {
                 contentDescription = if (active) {
                     "Tuning gauge, ${animatedCents.roundToInt()} cents"
@@ -346,8 +408,8 @@ private fun TunerGauge(
                 }
             },
     ) {
-        val center = Offset(size.width / 2f, size.height * 0.95f)
-        val radius = minOf(size.width * 0.43f, size.height * 0.88f)
+        val center = Offset(size.width / 2f, size.height * 0.94f)
+        val radius = minOf(size.width * 0.44f, size.height * 0.91f)
         val startAngle = 205f
         val sweep = 130f
 
@@ -361,14 +423,28 @@ private fun TunerGauge(
             style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round),
         )
 
+        drawArc(
+            color = BlakeColors.Primary.copy(alpha = if (active) 0.72f else 0.18f),
+            startAngle = 263f,
+            sweepAngle = 14f,
+            useCenter = false,
+            topLeft = Offset(center.x - radius, center.y - radius),
+            size = androidx.compose.ui.geometry.Size(radius * 2f, radius * 2f),
+            style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round),
+        )
+
         for (value in -50..50 step 5) {
             val fraction = (value + 50f) / 100f
             val angle = startAngle + (sweep * fraction)
             val radians = angle * PI.toFloat() / 180f
             val major = value % 10 == 0
             val outer = radius
-            val inner = radius * if (major) 0.86f else 0.91f
-            val tickColor = if (value == 0) BlakeColors.PrimaryMuted else BlakeColors.Border
+            val inner = radius * if (major) 0.84f else 0.91f
+            val tickColor = if (value in -5..5) {
+                BlakeColors.Primary.copy(alpha = if (active) 0.86f else 0.25f)
+            } else {
+                BlakeColors.TextMuted.copy(alpha = 0.55f)
+            }
 
             drawLine(
                 color = tickColor,
@@ -389,19 +465,19 @@ private fun TunerGauge(
         val needleAngle = startAngle + (sweep * needleFraction)
         val needleRadians = needleAngle * PI.toFloat() / 180f
         val needleEnd = Offset(
-            center.x + cos(needleRadians) * radius * 0.82f,
-            center.y + sin(needleRadians) * radius * 0.82f,
+            center.x + cos(needleRadians) * radius * 0.78f,
+            center.y + sin(needleRadians) * radius * 0.78f,
         )
 
         drawLine(
-            color = if (active) color else BlakeColors.TextMuted.copy(alpha = 0.35f),
+            color = if (active) color else BlakeColors.TextMuted.copy(alpha = 0.28f),
             start = center,
             end = needleEnd,
-            strokeWidth = 3.dp.toPx(),
+            strokeWidth = 4.dp.toPx(),
             cap = StrokeCap.Round,
         )
         drawCircle(
-            color = if (active) color else BlakeColors.TextMuted.copy(alpha = 0.35f),
+            color = if (active) color else BlakeColors.TextMuted.copy(alpha = 0.28f),
             radius = 5.dp.toPx(),
             center = center,
         )
@@ -409,61 +485,16 @@ private fun TunerGauge(
 }
 
 @Composable
-private fun GuitarControls(
+private fun ManualStrings(
     state: TunerViewModel.UiState,
-    onPresetChange: (TunerViewModel.TuningPreset) -> Unit,
     onStringSelected: (Int?) -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(BlakeColors.Surface, RoundedCornerShape(16.dp))
-            .border(1.dp, BlakeColors.Border, RoundedCornerShape(16.dp))
-            .padding(14.dp),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Column {
-                Text(
-                    text = "TUNING",
-                    color = BlakeColors.TextMuted,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.2.sp,
-                )
-                Text(
-                    text = state.preset.label,
-                    color = BlakeColors.Text,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
-
-            Text(
-                text = "CHANGE",
-                color = BlakeColors.Primary,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .clickable {
-                        val entries = TunerViewModel.TuningPreset.entries
-                        val next = entries[(state.preset.ordinal + 1) % entries.size]
-                        onPresetChange(next)
-                    }
-                    .padding(8.dp),
-            )
-        }
-
-        Spacer(Modifier.height(12.dp))
-
+    SectionCard(title = "MANUAL STRING") {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(9.dp),
         ) {
             StringChip(
                 label = "AUTO",
@@ -482,85 +513,231 @@ private fun GuitarControls(
 }
 
 @Composable
+private fun TuningPresets(
+    selected: TunerViewModel.TuningPreset,
+    onPresetChange: (TunerViewModel.TuningPreset) -> Unit,
+) {
+    SectionCard(title = "TUNING PRESETS") {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            TunerViewModel.TuningPreset.entries.forEach { preset ->
+                PresetChip(
+                    label = preset.label,
+                    selected = preset == selected,
+                    onClick = { onPresetChange(preset) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuickSettings(
+    mode: TunerViewModel.Mode,
+    a4Hz: Double,
+    onModeChange: (TunerViewModel.Mode) -> Unit,
+    onA4Change: (Double) -> Unit,
+) {
+    SectionCard(title = "QUICK SETTINGS") {
+        Text(
+            text = "MODE",
+            color = BlakeColors.TextMuted,
+            fontSize = 9.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.2.sp,
+        )
+        Spacer(Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            ModeChip(
+                label = "GUITAR",
+                selected = mode == TunerViewModel.Mode.GUITAR,
+                modifier = Modifier.weight(1f),
+                onClick = { onModeChange(TunerViewModel.Mode.GUITAR) },
+            )
+            ModeChip(
+                label = "CHROMATIC",
+                selected = mode == TunerViewModel.Mode.CHROMATIC,
+                modifier = Modifier.weight(1f),
+                onClick = { onModeChange(TunerViewModel.Mode.CHROMATIC) },
+            )
+        }
+
+        Spacer(Modifier.height(15.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column {
+                Text(
+                    text = "A4 REFERENCE",
+                    color = BlakeColors.TextMuted,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.2.sp,
+                )
+                Text(
+                    text = String.format(Locale.US, "%.1f Hz", a4Hz),
+                    color = BlakeColors.Text,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                RoundActionButton("−") { onA4Change(-0.5) }
+                RoundActionButton("+") { onA4Change(0.5) }
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = "Offline. No ads. No trackers. Your microphone audio stays on this device.",
+            color = BlakeColors.TextMuted,
+            fontSize = 11.sp,
+            lineHeight = 16.sp,
+        )
+    }
+}
+
+@Composable
+private fun SectionCard(
+    title: String,
+    content: @Composable () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(BlakeColors.Surface, RoundedCornerShape(18.dp))
+            .border(1.dp, BlakeColors.Border, RoundedCornerShape(18.dp))
+            .padding(14.dp),
+    ) {
+        Text(
+            text = title,
+            color = BlakeColors.TextMuted,
+            fontSize = 9.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.3.sp,
+        )
+        Spacer(Modifier.height(10.dp))
+        content()
+    }
+}
+
+@Composable
 private fun StringChip(
     label: String,
     selected: Boolean,
     onClick: () -> Unit,
 ) {
     Surface(
-        shape = RoundedCornerShape(10.dp),
-        color = if (selected) BlakeColors.Primary.copy(alpha = 0.12f) else BlakeColors.SurfaceRaised,
+        shape = CircleShape,
+        color = if (selected) BlakeColors.Primary else BlakeColors.SurfaceSoft,
         modifier = Modifier
+            .size(if (label == "AUTO") 52.dp else 44.dp)
             .border(
                 width = 1.dp,
-                color = if (selected) BlakeColors.Primary.copy(alpha = 0.75f) else BlakeColors.Border,
-                shape = RoundedCornerShape(10.dp),
+                color = if (selected) BlakeColors.Primary else BlakeColors.Border,
+                shape = CircleShape,
+            )
+            .clickable(onClick = onClick),
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(
+                text = label,
+                color = if (selected) BlakeColors.Background else BlakeColors.Text,
+                fontSize = if (label == "AUTO") 9.sp else 13.sp,
+                fontWeight = FontWeight.Black,
+            )
+        }
+    }
+}
+
+@Composable
+private fun PresetChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Surface(
+        shape = RoundedCornerShape(999.dp),
+        color = if (selected) BlakeColors.Primary.copy(alpha = 0.12f) else BlakeColors.SurfaceSoft,
+        modifier = Modifier
+            .border(
+                1.dp,
+                if (selected) BlakeColors.Primary else BlakeColors.Border,
+                RoundedCornerShape(999.dp),
+            )
+            .clickable(onClick = onClick),
+    ) {
+        Text(
+            text = label,
+            color = if (selected) BlakeColors.Primary else BlakeColors.Text,
+            fontSize = 11.sp,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
+        )
+    }
+}
+
+@Composable
+private fun ModeChip(
+    label: String,
+    selected: Boolean,
+    modifier: Modifier,
+    onClick: () -> Unit,
+) {
+    Surface(
+        shape = RoundedCornerShape(14.dp),
+        color = if (selected) BlakeColors.Primary.copy(alpha = 0.10f) else BlakeColors.SurfaceSoft,
+        modifier = modifier
+            .border(
+                1.dp,
+                if (selected) BlakeColors.Primary else BlakeColors.Border,
+                RoundedCornerShape(14.dp),
             )
             .clickable(onClick = onClick),
     ) {
         Text(
             text = label,
             color = if (selected) BlakeColors.Primary else BlakeColors.TextMuted,
-            fontSize = 12.sp,
+            textAlign = TextAlign.Center,
+            fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
+            letterSpacing = 0.8.sp,
+            modifier = Modifier.padding(vertical = 13.dp),
         )
     }
 }
 
 @Composable
-private fun CalibrationControl(
-    a4Hz: Double,
-    onChange: (Double) -> Unit,
+private fun RoundActionButton(
+    label: String,
+    onClick: () -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(BlakeColors.Surface, RoundedCornerShape(14.dp))
-            .border(1.dp, BlakeColors.Border, RoundedCornerShape(14.dp))
-            .padding(horizontal = 14.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Column {
-            Text(
-                text = "REFERENCE",
-                color = BlakeColors.TextMuted,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.2.sp,
-            )
-            Text(
-                text = "A4  ${a4Hz.roundToInt()} Hz",
-                color = BlakeColors.Text,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-            )
-        }
-
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            MiniButton("−") { onChange(-1.0) }
-            MiniButton("+") { onChange(1.0) }
-        }
-    }
-}
-
-@Composable
-private fun MiniButton(label: String, onClick: () -> Unit) {
     Surface(
-        shape = RoundedCornerShape(9.dp),
-        color = BlakeColors.SurfaceRaised,
+        shape = CircleShape,
+        color = BlakeColors.SurfaceSoft,
         modifier = Modifier
-            .size(38.dp)
-            .border(1.dp, BlakeColors.Border, RoundedCornerShape(9.dp))
+            .size(40.dp)
+            .border(1.dp, BlakeColors.Border, CircleShape)
             .clickable(onClick = onClick),
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(
                 text = label,
-                color = BlakeColors.Primary,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
+                color = BlakeColors.Text,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Light,
             )
         }
     }
@@ -571,24 +748,30 @@ private fun MicrophonePermissionCard(onRequestMicrophone: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(BlakeColors.Surface, RoundedCornerShape(18.dp))
-            .border(1.dp, BlakeColors.Border, RoundedCornerShape(18.dp))
-            .padding(20.dp),
+            .background(BlakeColors.Surface, RoundedCornerShape(22.dp))
+            .border(1.dp, BlakeColors.Primary.copy(alpha = 0.32f), RoundedCornerShape(22.dp))
+            .padding(22.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Image(
+            painter = painterResource(R.drawable.ic_blake_alien),
+            contentDescription = null,
+            modifier = Modifier.size(72.dp),
+        )
+        Spacer(Modifier.height(12.dp))
         Text(
-            text = "MICROPHONE NEEDED",
-            color = BlakeColors.Primary,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.2.sp,
+            text = "LET ME HEAR THE GUITAR",
+            color = BlakeColors.Text,
+            fontSize = 17.sp,
+            fontWeight = FontWeight.Black,
+            letterSpacing = 0.5.sp,
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "The tuner analyzes the microphone locally. Audio is never uploaded, stored, or sent anywhere.",
+            text = "Microphone access is only used for on-device pitch detection. Nothing is recorded or uploaded.",
             color = BlakeColors.TextMuted,
-            fontSize = 14.sp,
-            lineHeight = 20.sp,
+            fontSize = 13.sp,
+            lineHeight = 18.sp,
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(16.dp))
@@ -598,13 +781,21 @@ private fun MicrophonePermissionCard(onRequestMicrophone: () -> Unit) {
                 containerColor = BlakeColors.Primary,
                 contentColor = BlakeColors.Background,
             ),
+            shape = RoundedCornerShape(999.dp),
         ) {
-            Text("ALLOW MICROPHONE", fontWeight = FontWeight.Bold)
+            Text(
+                text = "ENABLE MICROPHONE",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 0.7.sp,
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+            )
         }
     }
 }
 
 private fun formatHz(value: Double): String = when {
-    value >= 1000.0 -> String.format(Locale.US, "%.1f", value)
+    value >= 1000.0 -> String.format(Locale.US, "%.0f", value)
+    value >= 100.0 -> String.format(Locale.US, "%.1f", value)
     else -> String.format(Locale.US, "%.2f", value)
 }
