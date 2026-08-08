@@ -44,10 +44,10 @@ class PitchDetectorTest {
 
     @Test
     fun `rejects silence`() {
-        assertNull(detector.detect(ShortArray(8192)))
+        assertNull(detector.detect(ShortArray(4096)))
     }
 
-    private fun sineWave(frequency: Double, size: Int = 8192): ShortArray =
+    private fun sineWave(frequency: Double, size: Int = 4096): ShortArray =
         ShortArray(size) { index ->
             val phase = 2.0 * PI * frequency * index / sampleRate
             (sin(phase) * Short.MAX_VALUE * 0.65).toInt().toShort()
@@ -61,7 +61,7 @@ class PitchDetectorTest {
      */
     private fun guitarLikeWave(
         frequency: Double,
-        size: Int = 8192,
+        size: Int = 4096,
         amplitude: Double = 0.02,
     ): ShortArray {
         val harmonics = doubleArrayOf(0.55, 1.0, 0.65, 0.35, 0.20)
