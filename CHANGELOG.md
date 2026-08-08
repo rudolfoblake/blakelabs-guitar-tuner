@@ -22,7 +22,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Prioritized the standard Android `MIC` input path before vendor-sensitive `UNPROCESSED` capture.
 - Separated raw microphone signal measurement from pitch detection so the SIGNAL meter can prove that PCM audio is arriving even when pitch has not locked yet.
 - Relaxed detector gates for real acoustic-guitar input while retaining confidence gating before a note is accepted.
-- Increased the analysis window to 8192 samples for more stable low-string/fundamental detection.
+- Kept a 4096-sample rolling analysis window with a 2048-sample hop: enough low-string cycles for E2/Drop D without paying the CPU/latency cost of an oversized window.
 - Added `BlakeTunerAudio` logcat diagnostics with selected input source, sample rate and capture failures.
 
 ### Tested
