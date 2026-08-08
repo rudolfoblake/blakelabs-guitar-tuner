@@ -13,6 +13,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Additional and custom tuning presets.
 - Reference tone generator.
 
+## [0.2.2] - 2026-08-08
+
+### Fixed
+
+- Reframed the official Blake Labs artwork from the original source so the full alien contour remains visible instead of being cropped at the top and bottom.
+- Added dedicated safe-area wrappers for adaptive launcher icons and the Android 12+ system splash.
+- Added second-harmonic recovery in guitar mode so a low E whose strong octave is detected near E3 is normalized back to the E2 fundamental.
+- Added automatic-string hysteresis so short room tones and transients cannot immediately steal the currently tracked guitar string.
+- Rejected guitar-mode pitch candidates that are too far from any plausible tuning target instead of letting unrelated room noise yank the needle.
+- Tightened the low-confidence YIN fallback after physical testing showed that the 0.2.1 fallback was too accepting of noisy, weakly periodic input.
+
+### Tested
+
+- Added deterministic coverage for low-E second-harmonic normalization.
+- Added checks that D3 and high E fundamentals remain assigned to the correct strings after harmonic recovery was introduced.
+
+### Changed
+
+- Increased accepted-pitch confidence from 0.45 to 0.50 and in-tune confidence from 0.60 to 0.65.
+- Bumped Android application to version 0.2.2 / versionCode 4.
+
 ## [0.2.1] - 2026-08-08
 
 ### Fixed
