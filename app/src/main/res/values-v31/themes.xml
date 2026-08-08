@@ -8,7 +8,7 @@
         <item name="android:windowLightNavigationBar">false</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowSplashScreenBackground">@color/blake_black</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/blake_labs_logo</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_splash</item>
         <item name="android:windowSplashScreenIconBackgroundColor">@color/blake_black</item>
     </style>
 </resources>
