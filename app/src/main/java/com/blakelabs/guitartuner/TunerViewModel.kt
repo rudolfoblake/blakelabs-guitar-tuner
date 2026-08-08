@@ -306,9 +306,10 @@ class TunerViewModel : ViewModel() {
             )
         }
 
-        // Do not let a nearby room tone or a short transient steal the current guitar string.
-        // Adjacent real guitar strings are 400–500 cents apart, so a 220-cent preference still
-        // allows deliberate string changes while blocking the common E2 -> D3 false jump.
+        // A new string must be materially better than the current target before we even consider
+        // switching. Then it must persist across several analysis frames. Larger jumps require
+        // extra confirmations, which prevents a low E from becoming D3 because of one resonance,
+        // while still allowing the player to deliberately skip to any string after a brief hold.
         val candidateClearlyBetter =
             best.scoreCents + AUTO_SWITCH_MARGIN_CENTS < current.scoreCents
 
@@ -329,7 +330,10 @@ class TunerViewModel : ViewModel() {
             pendingAutoTargetFrames = 1
         }
 
-        if (pendingAutoTargetFrames < AUTO_SWITCH_CONFIRMATIONS) return null
+        val skippedStrings = (abs(best.targetIndex - currentIndex) - 1).coerceAtLeast(0)
+        val requiredConfirmations =
+            AUTO_SWITCH_CONFIRMATIONS + skippedStrings * EXTRA_CONFIRMATIONS_PER_SKIPPED_STRING
+        if (pendingAutoTargetFrames < requiredConfirmations) return null
 
         autoTargetIndex = best.targetIndex
         clearPendingAutoTarget()
@@ -388,8 +392,9 @@ class TunerViewModel : ViewModel() {
         const val SIGNAL_FLOOR = 0.0005f
         const val SIGNAL_RANGE = 0.025f
         const val AUTO_SWITCH_CONFIRMATIONS = 4
-        const val AUTO_SWITCH_MARGIN_CENTS = 220.0
-        const val MAX_TRACKING_DISTANCE_CENTS = 240.0
+        const val EXTRA_CONFIRMATIONS_PER_SKIPPED_STRING = 2
+        const val AUTO_SWITCH_MARGIN_CENTS = 160.0
+        const val MAX_TRACKING_DISTANCE_CENTS = 260.0
         const val MAX_INITIAL_STRING_DISTANCE_CENTS = 300.0
     }
 }
