@@ -30,7 +30,7 @@ The engine publishes raw RMS signal level independently from pitch detection. Th
 - **SIGNAL:** is PCM audio actually arriving from the microphone?
 - **LOCK:** did the pitch detector find a reliable periodic fundamental?
 
-The current window is 8192 samples with a 2048-sample hop. At 48 kHz this favors reliable low-string detection while retaining interactive update cadence.
+The current window is 4096 samples with a 2048-sample hop. At 48 kHz that contains enough cycles for E2 and Drop D while keeping the YIN workload and interactive latency reasonable on phones.
 
 Runtime diagnostics use the `BlakeTunerAudio` logcat tag and report the selected input source, sample rate, capture start/stop and failures.
 
