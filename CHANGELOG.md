@@ -8,10 +8,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Planned
 
-- Physical-device tuning validation across multiple Android microphones.
+- Additional physical-device tuning validation across multiple Android microphones.
 - Strobe tuning mode.
 - Additional and custom tuning presets.
 - Reference tone generator.
+
+## [0.2.1] - 2026-08-08
+
+### Fixed
+
+- Replaced the reconstructed placeholder alien artwork with the official Blake Labs logo asset supplied by the project owner.
+- Updated the in-app logo, adaptive launcher icon and Android 12+ system splash to use the same official mark.
+- Prioritized the standard Android `MIC` input path before vendor-sensitive `UNPROCESSED` capture.
+- Separated raw microphone signal measurement from pitch detection so the SIGNAL meter can prove that PCM audio is arriving even when pitch has not locked yet.
+- Relaxed detector gates for real acoustic-guitar input while retaining confidence gating before a note is accepted.
+- Increased the analysis window to 8192 samples for more stable low-string/fundamental detection.
+- Added `BlakeTunerAudio` logcat diagnostics with selected input source, sample rate and capture failures.
+
+### Tested
+
+- Added deterministic low-level, harmonic-rich plucked-string style tests where the second harmonic is stronger than the fundamental.
+- Kept pure-tone coverage for all six standard guitar strings and explicit silence rejection.
+
+### Changed
+
+- Bumped Android application to version 0.2.1 / versionCode 3.
 
 ## [0.2.0] - 2026-08-07
 
