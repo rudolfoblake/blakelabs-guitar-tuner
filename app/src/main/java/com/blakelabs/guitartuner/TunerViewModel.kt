@@ -105,6 +105,7 @@ class TunerViewModel : ViewModel() {
 
         audioEngine = AudioEngine(
             onPitch = ::handlePitch,
+            onSignal = ::handleSignal,
             onError = { message ->
                 _state.value = _state.value.copy(
                     listening = false,
@@ -112,6 +113,7 @@ class TunerViewModel : ViewModel() {
                     frequencyHz = null,
                     targetHz = null,
                     noteLabel = "—",
+                    confidence = 0f,
                     status = PitchStatus.WAITING,
                 )
             },
@@ -163,27 +165,29 @@ class TunerViewModel : ViewModel() {
         )
     }
 
+    private fun handleSignal(rms: Float) {
+        if (!_state.value.listening) return
+        _state.value = _state.value.copy(signal = signalLevel(rms))
+    }
+
     private fun handlePitch(result: PitchDetector.Result?) {
-        val current = _state.value
-        if (!current.listening) return
+        if (!_state.value.listening) return
 
         if (result == null || result.confidence < MIN_ACCEPTED_CONFIDENCE) {
             misses++
             if (misses >= MISSES_BEFORE_CLEAR) {
                 frequencyHistory.clear()
-                _state.value = current.copy(
+                _state.value = _state.value.copy(
                     frequencyHz = null,
                     targetHz = null,
                     noteLabel = "—",
                     cents = 0.0,
                     confidence = result?.confidence ?: 0f,
-                    signal = result?.rms?.let(::signalLevel) ?: 0f,
                     status = PitchStatus.WAITING,
                 )
             } else {
-                _state.value = current.copy(
+                _state.value = _state.value.copy(
                     confidence = result?.confidence ?: 0f,
-                    signal = result?.rms?.let(::signalLevel) ?: 0f,
                 )
             }
             return
@@ -216,7 +220,6 @@ class TunerViewModel : ViewModel() {
             noteLabel = target.label,
             cents = cents.coerceIn(-DISPLAY_CENTS_LIMIT, DISPLAY_CENTS_LIMIT),
             confidence = result.confidence,
-            signal = signalLevel(result.rms),
             status = status,
             error = null,
         )
@@ -271,14 +274,14 @@ class TunerViewModel : ViewModel() {
 
     private companion object {
         const val HISTORY_SIZE = 5
-        const val MISSES_BEFORE_CLEAR = 5
-        const val MIN_ACCEPTED_CONFIDENCE = 0.65f
-        const val IN_TUNE_CONFIDENCE = 0.80f
+        const val MISSES_BEFORE_CLEAR = 7
+        const val MIN_ACCEPTED_CONFIDENCE = 0.45f
+        const val IN_TUNE_CONFIDENCE = 0.60f
         const val IN_TUNE_CENTS = 3.0
         const val DISPLAY_CENTS_LIMIT = 50.0
         const val MIN_A4_HZ = 430.0
         const val MAX_A4_HZ = 450.0
-        const val SIGNAL_FLOOR = 0.005f
-        const val SIGNAL_RANGE = 0.08f
+        const val SIGNAL_FLOOR = 0.0005f
+        const val SIGNAL_RANGE = 0.025f
     }
 }
