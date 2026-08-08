@@ -84,6 +84,9 @@ class PitchDetector(
 
         if (tau > maxTau) {
             tau = (minTau..maxTau).minByOrNull { cmndf[it] } ?: return null
+            // The physical 0.2.1 build proved the relaxed fallback was useful for weak strings,
+            // but 0.45 also admitted too much room noise. Keep the normal YIN path permissive
+            // while requiring a meaningfully periodic fallback candidate.
             if (cmndf[tau] > FALLBACK_MAX_CMND) return null
         }
 
@@ -115,7 +118,7 @@ class PitchDetector(
 
     private companion object {
         const val MIN_ANALYSIS_SAMPLES = 2048
-        const val FALLBACK_MAX_CMND = 0.45f
+        const val FALLBACK_MAX_CMND = 0.35f
         const val EPSILON = 1e-12
     }
 }
