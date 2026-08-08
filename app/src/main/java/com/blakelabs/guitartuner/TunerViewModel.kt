@@ -253,42 +253,44 @@ class TunerViewModel : ViewModel() {
         )
     }
 
-    private fun resolveMeasurement(state: UiState, detectedHz: Double): Measurement? = when (state.mode) {
-        Mode.CHROMATIC -> {
-            val nearest = MusicTheory.nearestNote(detectedHz, state.a4Hz)
-            Measurement(
-                target = Target(nearest.label, nearest.frequencyHz),
-                fundamentalFrequencyHz = detectedHz,
-            )
-        }
-
-        Mode.GUITAR -> {
-            val selected = state.selectedStringIndex
-            val sourceStrings = if (selected != null && selected in state.preset.strings.indices) {
-                listOf(state.preset.strings[selected])
-            } else {
-                state.preset.strings
-            }
-            val candidates = sourceStrings.map { string ->
-                GuitarPitchMatcher.Candidate(
-                    label = string.label,
-                    fundamentalHz = MusicTheory.frequencyForMidi(string.midi, state.a4Hz),
+    private fun resolveMeasurement(state: UiState, detectedHz: Double): Measurement? {
+        return when (state.mode) {
+            Mode.CHROMATIC -> {
+                val nearest = MusicTheory.nearestNote(detectedHz, state.a4Hz)
+                Measurement(
+                    target = Target(nearest.label, nearest.frequencyHz),
+                    fundamentalFrequencyHz = detectedHz,
                 )
             }
-            val match = GuitarPitchMatcher.match(
-                detectedHz = detectedHz,
-                candidates = candidates,
-                maxDistanceCents = if (selected == null) {
-                    GUITAR_AUTO_MATCH_MAX_CENTS
-                } else {
-                    GUITAR_MANUAL_MATCH_MAX_CENTS
-                },
-            ) ?: return null
 
-            Measurement(
-                target = Target(match.label, match.targetHz),
-                fundamentalFrequencyHz = match.normalizedFrequencyHz,
-            )
+            Mode.GUITAR -> {
+                val selected = state.selectedStringIndex
+                val sourceStrings = if (selected != null && selected in state.preset.strings.indices) {
+                    listOf(state.preset.strings[selected])
+                } else {
+                    state.preset.strings
+                }
+                val candidates = sourceStrings.map { string ->
+                    GuitarPitchMatcher.Candidate(
+                        label = string.label,
+                        fundamentalHz = MusicTheory.frequencyForMidi(string.midi, state.a4Hz),
+                    )
+                }
+                val match = GuitarPitchMatcher.match(
+                    detectedHz = detectedHz,
+                    candidates = candidates,
+                    maxDistanceCents = if (selected == null) {
+                        GUITAR_AUTO_MATCH_MAX_CENTS
+                    } else {
+                        GUITAR_MANUAL_MATCH_MAX_CENTS
+                    },
+                ) ?: return null
+
+                Measurement(
+                    target = Target(match.label, match.targetHz),
+                    fundamentalFrequencyHz = match.normalizedFrequencyHz,
+                )
+            }
         }
     }
 
