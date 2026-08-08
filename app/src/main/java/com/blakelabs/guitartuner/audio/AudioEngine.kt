@@ -7,9 +7,11 @@ import android.media.MediaRecorder
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 import kotlin.math.max
+import kotlin.math.sqrt
 
 class AudioEngine(
     private val onPitch: (PitchDetector.Result?) -> Unit,
+    private val onSignal: (Float) -> Unit,
     private val onError: (String) -> Unit,
 ) {
     private data class RecorderConfig(
@@ -44,6 +46,9 @@ class AudioEngine(
 
         try {
             activeConfig.recorder.startRecording()
+            if (activeConfig.recorder.recordingState != AudioRecord.RECORDSTATE_RECORDING) {
+                throw IllegalStateException("Android opened the microphone but did not start recording.")
+            }
         } catch (error: Exception) {
             activeConfig.recorder.release()
             recorder = null
@@ -63,7 +68,15 @@ class AudioEngine(
                         readBuffer.size,
                         AudioRecord.READ_BLOCKING,
                     )
-                    if (count <= 0) continue
+
+                    if (count < 0) {
+                        throw IllegalStateException("Microphone read failed with AudioRecord code $count.")
+                    }
+                    if (count == 0) continue
+
+                    // Report raw microphone energy independently from pitch detection. This makes
+                    // device-level microphone problems visible even when YIN cannot lock a note yet.
+                    onSignal(calculateRms(readBuffer, count))
 
                     if (filled < ANALYSIS_SIZE) {
                         val copyCount = count.coerceAtMost(ANALYSIS_SIZE - filled)
@@ -120,10 +133,15 @@ class AudioEngine(
         if (minBufferBytes <= 0) return null
 
         val bufferBytes = max(minBufferBytes * 2, ANALYSIS_SIZE * 4)
+
+        // MIC is deliberately first. Some Android vendors expose UNPROCESSED successfully but
+        // deliver silence or aggressively attenuated input. The regular microphone path is the
+        // most compatible choice for a physical instrument tuner.
         val sources = intArrayOf(
+            MediaRecorder.AudioSource.MIC,
             MediaRecorder.AudioSource.UNPROCESSED,
-            MediaRecorder.AudioSource.VOICE_RECOGNITION,
             MediaRecorder.AudioSource.DEFAULT,
+            MediaRecorder.AudioSource.VOICE_RECOGNITION,
         )
 
         for (source in sources) {
@@ -152,6 +170,16 @@ class AudioEngine(
             .build()
     } catch (_: Exception) {
         null
+    }
+
+    private fun calculateRms(samples: ShortArray, count: Int): Float {
+        if (count <= 0) return 0f
+        var sum = 0.0
+        for (index in 0 until count) {
+            val normalized = samples[index].toDouble() / Short.MAX_VALUE
+            sum += normalized * normalized
+        }
+        return sqrt(sum / count).toFloat()
     }
 
     private companion object {
