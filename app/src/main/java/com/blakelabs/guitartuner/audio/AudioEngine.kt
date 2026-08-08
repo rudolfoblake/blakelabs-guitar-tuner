@@ -204,7 +204,7 @@ class AudioEngine(
     private companion object {
         const val TAG = "BlakeTunerAudio"
         val SAMPLE_RATES = intArrayOf(48_000, 44_100)
-        const val ANALYSIS_SIZE = 8192
+        const val ANALYSIS_SIZE = 4096
         const val HOP_SIZE = 2048
         const val STOP_JOIN_TIMEOUT_MS = 300L
     }
