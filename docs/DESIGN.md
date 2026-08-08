@@ -16,13 +16,13 @@ The UI direction is deliberately high-contrast, quiet and fast to parse while so
 
 ## Brand mark
 
-The Blake Labs alien mark lives in:
+The canonical Android asset is:
 
 ```text
-app/src/main/res/drawable/ic_launcher_foreground.xml
+app/src/main/res/drawable/blake_labs_logo.webp
 ```
 
-It is a vector recreation of the supplied Blake Labs logo so the same asset can be reused in the launcher icon, splash screen, header and privacy surface without bitmap scaling artifacts.
+It is derived directly from the supplied official Blake Labs artwork, cropped only to fit Android's icon/splash safe area. The app reuses this same mark in the adaptive launcher icon, Android splash, in-app splash, header and privacy surface. Do not replace it with a generated or hand-reconstructed lookalike.
 
 ## Core tokens
 
