@@ -12,10 +12,10 @@ import kotlin.math.sqrt
  */
 class PitchDetector(
     private val sampleRate: Int,
-    private val minFrequencyHz: Float = 65f,
+    private val minFrequencyHz: Float = 55f,
     private val maxFrequencyHz: Float = 1200f,
-    private val yinThreshold: Float = 0.12f,
-    private val rmsGate: Float = 0.008f,
+    private val yinThreshold: Float = 0.18f,
+    private val rmsGate: Float = 0.0015f,
 ) {
     data class Result(
         val frequencyHz: Float,
@@ -115,7 +115,7 @@ class PitchDetector(
 
     private companion object {
         const val MIN_ANALYSIS_SAMPLES = 2048
-        const val FALLBACK_MAX_CMND = 0.30f
+        const val FALLBACK_MAX_CMND = 0.45f
         const val EPSILON = 1e-12
     }
 }

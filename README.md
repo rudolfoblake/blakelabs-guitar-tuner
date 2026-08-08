@@ -12,6 +12,7 @@ Blake Labs Guitar Tuner is a small, privacy-first Android tuner built for fast v
 - **Chromatic mode** for anything that makes a reasonably stable note.
 - **Standard, Drop D and DADGAD** presets.
 - **YIN-based pitch detection** implemented in-project, with no DSP black box.
+- **Independent SIGNAL and LOCK meters** so microphone capture and pitch confidence are visible separately.
 - **±3 cent in-tune lock** with clear flat / in-tune / sharp feedback.
 - **Median smoothing** to keep the needle useful instead of caffeinated.
 - **48 kHz capture** with 44.1 kHz fallback.
@@ -30,7 +31,7 @@ The main screen answers three questions immediately:
 
 The app shows the target note, detected frequency, cents offset, a large gauge, and an explicit status. The premium Blake Labs visual system uses true black, the alien-mark lime, a visible ±3-cent lock zone and redundant tuning feedback so nobody has to decode a tiny needle while holding a guitar in one hand.
 
-The launcher icon, branded launch screen and in-app identity all reuse the same scalable Blake Labs alien mark.
+The launcher icon, Android splash and in-app identity all reuse the same **official Blake Labs logo asset** supplied for the project. No generated lookalike mark.
 
 Design system: [`docs/DESIGN.md`](docs/DESIGN.md).
 
@@ -38,6 +39,8 @@ Design system: [`docs/DESIGN.md`](docs/DESIGN.md).
 
 ```text
 Microphone
+   │
+   ├────► Raw RMS ────► SIGNAL meter
    │
    ▼
 AudioRecord (mono PCM16)
@@ -47,6 +50,8 @@ PitchDetector (YIN / CMNDF)
    │
    ▼
 Median stabilization
+   │
+   ├────► Detector confidence ────► LOCK meter
    │
    ▼
 MusicTheory (Hz ↔ MIDI ↔ cents)
@@ -97,6 +102,8 @@ app/build/outputs/apk/debug/app-debug.apk
 The current detector is optimized for monophonic guitar-range signals. A clean pluck near the phone microphone works best. Accuracy depends on microphone hardware, ambient noise, harmonics, string attack and the physical instrument.
 
 The UI considers a note **in tune at ±3 cents** with sufficient detector confidence. That threshold is intentionally stricter than "eh, close enough" but still practical for a phone microphone.
+
+For device debugging, Android audio routing is logged under the `BlakeTunerAudio` tag.
 
 ## Privacy
 

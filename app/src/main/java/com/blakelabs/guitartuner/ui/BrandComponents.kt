@@ -27,6 +27,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -214,8 +215,9 @@ private fun IconButton(onClick: () -> Unit) {
 @Composable
 internal fun BrandMark(size: Dp) {
     Image(
-        painter = painterResource(R.drawable.ic_launcher_foreground),
+        painter = painterResource(R.drawable.blake_labs_logo),
         contentDescription = "Blake Labs alien logo",
+        contentScale = ContentScale.Fit,
         modifier = Modifier.size(size),
     )
 }
