@@ -14,7 +14,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Additional and custom tuning presets.
 - Reference tone generator.
 
-## [0.2.3] - 2026-08-09
+## [0.2.4] - 2026-08-09
 
 ### Fixed
 
@@ -24,7 +24,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
-- Bumped Android application to version 0.2.3 / versionCode 5 so the rollback can be installed and verified independently.
+- Bumped Android application to version 0.2.4 / versionCode 6 so this rollback build is unambiguous on-device and cannot be confused with the failed `0.2.3` experiment.
 
 ### Validation note
 
