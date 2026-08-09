@@ -13,6 +13,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Additional and custom tuning presets.
 - Reference tone generator.
 
+## [0.2.3] - 2026-08-09
+
+### Fixed
+
+- Reverted the risky system/Compose reuse of the `0.2.2` WebP logo path that coincided with a physical-device startup crash and launcher fallback icon.
+- Added a stable PNG derived directly from the supplied official Blake Labs artwork, preserving its full-square framing.
+- Compose now loads the official PNG directly instead of sharing the same bitmap resource with Android launcher/splash plumbing.
+- Adaptive launcher icons now use a dedicated safe-area foreground wrapper.
+- Android 12+ system splash now uses its own inset wrapper instead of pointing directly at the app logo bitmap.
+- Left the `0.2.2` low-E harmonic matching and target hysteresis logic unchanged so the startup/branding hotfix does not mix with tuner DSP changes.
+
+### Changed
+
+- Bumped Android application to version 0.2.3 / versionCode 5.
+
 ## [0.2.2] - 2026-08-08
 
 ### Fixed
