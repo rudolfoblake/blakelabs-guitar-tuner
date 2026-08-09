@@ -51,12 +51,6 @@ The current useful range is 55–1200 Hz. That comfortably covers standard guita
 
 Detector thresholds are deliberately separated from the UI's in-tune threshold. A pitch can be displayed before it is trusted strongly enough to produce the green in-tune lock.
 
-### `audio/GuitarPitchMatcher.kt`
-
-Resolves a detected pitch against the configured guitar strings. In addition to matching the fundamental, it checks the second harmonic and folds a clean harmonic match back to the string fundamental before cents are calculated.
-
-That specifically handles the common low-E failure mode where a phone microphone or pitch detector emphasizes E3 (the second harmonic of E2). Without harmonic-aware matching, that observation can be incorrectly assigned to a neighboring higher guitar string. Only the second harmonic is considered to avoid overfitting arbitrary room sounds to higher harmonic series.
-
 ### `audio/MusicTheory.kt`
 
 Pure functions for:
@@ -76,13 +70,10 @@ Owns application state and tuning decisions:
 - detector-confidence gates;
 - independent raw-signal state;
 - stale-reading clearing;
-- harmonic-aware guitar preset targeting;
-- consecutive-frame target confirmation before automatic note switches;
-- wider matching tolerance when the user explicitly locks a string manually;
+- guitar preset targeting;
+- manual string lock;
 - chromatic note targeting;
 - ±3 cent in-tune classification.
-
-The automatic guitar mode intentionally rejects detected pitches that are too far from every configured string fundamental or its second harmonic. This reduces the chance that unrelated room noise steals the target from the string being tuned.
 
 ### `ui/`
 
@@ -90,7 +81,7 @@ Jetpack Compose UI. The interface intentionally uses redundant cues: note name, 
 
 ## Branding boundary
 
-The official Blake Labs logo is stored as a project-owned bitmap asset and reused by the in-app brand mark, adaptive launcher icon and Android 12+ splash. The full supplied composition and its built-in black breathing room are preserved so launcher masks and splash scaling do not crop the alien head. It is not reconstructed as a lookalike vector.
+The official Blake Labs logo is stored as a project-owned bitmap asset and reused by the in-app brand mark, adaptive launcher icon and Android 12+ splash. It is not reconstructed as a lookalike vector.
 
 ## Privacy boundary
 
@@ -108,10 +99,7 @@ Automated DSP tests cover:
 
 - all six standard guitar fundamentals with pure tones;
 - explicit silence rejection;
-- low-level, harmonic-rich plucked-string-like signals where the second harmonic is stronger than the fundamental;
-- low-E second-harmonic folding back to E2;
-- correct D3 fundamental selection;
-- rejection of guitar-mode candidates outside the allowed string neighborhoods.
+- low-level, harmonic-rich plucked-string-like signals where the second harmonic is stronger than the fundamental.
 
 Physical-device validation then checks the parts a synthetic test cannot reproduce: vendor microphone routing, AGC/noise processing, room noise, guitar position, attack/decay and real harmonic structure.
 

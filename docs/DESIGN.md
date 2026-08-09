@@ -22,7 +22,7 @@ The canonical Android asset is:
 app/src/main/res/drawable/blake_labs_logo.webp
 ```
 
-It is the supplied official Blake Labs artwork at its original full-square composition, preserving the built-in black breathing room around the alien head so launcher masks and splash scaling do not clip it. The app reuses this same mark in the adaptive launcher icon, Android splash, in-app splash, header and privacy surface. Do not replace it with a generated, hand-reconstructed or tightly cropped lookalike.
+It is derived directly from the supplied official Blake Labs artwork, cropped only to fit Android's icon/splash safe area. The app reuses this same mark in the adaptive launcher icon, Android splash, in-app splash, header and privacy surface. Do not replace it with a generated or hand-reconstructed lookalike.
 
 ## Core tokens
 
