@@ -19,10 +19,10 @@ The UI direction is deliberately high-contrast, quiet and fast to parse while so
 The canonical Android asset is:
 
 ```text
-app/src/main/res/drawable/blake_labs_logo.webp
+app/src/main/res/drawable-nodpi/blake_labs_logo_official.png
 ```
 
-It is the supplied official Blake Labs artwork at its original full-square composition, preserving the built-in black breathing room around the alien head so launcher masks and splash scaling do not clip it. The app reuses this same mark in the adaptive launcher icon, Android splash, in-app splash, header and privacy surface. Do not replace it with a generated, hand-reconstructed or tightly cropped lookalike.
+It is derived directly from the supplied official Blake Labs artwork with the full-square black breathing room preserved. Compose uses that PNG directly. Android launcher and Android 12+ splash go through dedicated inset wrappers so platform masks can scale the mark without clipping it. Do not replace it with a generated, hand-reconstructed or tightly cropped lookalike.
 
 ## Core tokens
 
