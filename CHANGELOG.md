@@ -8,28 +8,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Planned
 
+- Re-introduce low-E harmonic handling in an isolated, physically validated change.
 - Additional physical-device tuning validation across multiple Android microphones.
 - Strobe tuning mode.
 - Additional and custom tuning presets.
 - Reference tone generator.
 
-## [0.2.2] - 2026-08-08
+## [0.2.3] - 2026-08-09
 
 ### Fixed
 
-- Restored the full official Blake Labs logo artwork instead of the overly tight crop that clipped the alien head in the launcher and splash.
-- Added harmonic-aware guitar targeting so a strong second harmonic from low E2 is folded back to E2 instead of being mistaken for a neighboring higher string such as D3.
-- Added target hysteresis: a new automatic guitar target must remain stable across consecutive analysis frames before the UI switches notes.
-- Tightened pitch-confidence acceptance for normal strings while retaining a slightly more tolerant path for E2/A2 low-string detection.
-- Rejects auto-guitar pitch candidates that are too far from every configured string fundamental or its second harmonic, reducing reactions to unrelated room noise.
-
-### Tested
-
-- Added deterministic coverage proving E2 fundamental detection, E2 second-harmonic folding, correct D3 handling and rejection of out-of-range guitar candidates.
+- Restored the complete application tree from the last physical-device build proven to launch and tune successfully (`0.2.1`).
+- Removed the `0.2.2` low-E / automatic-target experiment from the runtime after the same device began failing immediately after launch.
+- Restored the exact `0.2.1` Blake Labs logo/resource path instead of continuing to patch the broken `0.2.2` branding state.
 
 ### Changed
 
-- Bumped Android application to version 0.2.2 / versionCode 4.
+- Bumped Android application to version 0.2.3 / versionCode 5 so the rollback can be installed and verified independently.
+
+### Validation note
+
+- This release intentionally prioritizes returning to a known-good launch/tuning baseline. Low-E and room-noise improvements will be reapplied separately only after startup is physically validated again.
 
 ## [0.2.1] - 2026-08-08
 

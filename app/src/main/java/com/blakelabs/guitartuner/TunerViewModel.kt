@@ -2,7 +2,6 @@ package com.blakelabs.guitartuner
 
 import androidx.lifecycle.ViewModel
 import com.blakelabs.guitartuner.audio.AudioEngine
-import com.blakelabs.guitartuner.audio.GuitarPitchMatcher
 import com.blakelabs.guitartuner.audio.MusicTheory
 import com.blakelabs.guitartuner.audio.PitchDetector
 import java.util.ArrayDeque
@@ -88,19 +87,12 @@ class TunerViewModel : ViewModel() {
         val frequencyHz: Double,
     )
 
-    private data class Measurement(
-        val target: Target,
-        val fundamentalFrequencyHz: Double,
-    )
-
     private val _state = MutableStateFlow(UiState())
     val state: StateFlow<UiState> = _state.asStateFlow()
 
     private val frequencyHistory = ArrayDeque<Double>()
     private var audioEngine: AudioEngine? = null
     private var misses = 0
-    private var pendingTargetLabel: String? = null
-    private var pendingTargetHits = 0
 
     fun start() {
         if (_state.value.listening) return
@@ -109,7 +101,7 @@ class TunerViewModel : ViewModel() {
             listening = true,
             error = null,
         )
-        resetTracking()
+        misses = 0
 
         audioEngine = AudioEngine(
             onPitch = ::handlePitch,
@@ -131,7 +123,8 @@ class TunerViewModel : ViewModel() {
     fun stop() {
         audioEngine?.stop()
         audioEngine = null
-        resetTracking()
+        frequencyHistory.clear()
+        misses = 0
         _state.value = _state.value.copy(
             listening = false,
             frequencyHz = null,
@@ -149,11 +142,6 @@ class TunerViewModel : ViewModel() {
         _state.value = _state.value.copy(
             mode = mode,
             selectedStringIndex = null,
-            frequencyHz = null,
-            targetHz = null,
-            noteLabel = "—",
-            cents = 0.0,
-            status = PitchStatus.WAITING,
         )
     }
 
@@ -162,35 +150,18 @@ class TunerViewModel : ViewModel() {
         _state.value = _state.value.copy(
             preset = preset,
             selectedStringIndex = null,
-            frequencyHz = null,
-            targetHz = null,
-            noteLabel = "—",
-            cents = 0.0,
-            status = PitchStatus.WAITING,
         )
     }
 
     fun selectString(index: Int?) {
         resetTracking()
-        _state.value = _state.value.copy(
-            selectedStringIndex = index,
-            frequencyHz = null,
-            targetHz = null,
-            noteLabel = "—",
-            cents = 0.0,
-            status = PitchStatus.WAITING,
-        )
+        _state.value = _state.value.copy(selectedStringIndex = index)
     }
 
     fun adjustA4(delta: Double) {
         resetTracking()
         _state.value = _state.value.copy(
             a4Hz = (_state.value.a4Hz + delta).coerceIn(MIN_A4_HZ, MAX_A4_HZ),
-            frequencyHz = null,
-            targetHz = null,
-            noteLabel = "—",
-            cents = 0.0,
-            status = PitchStatus.WAITING,
         )
     }
 
@@ -201,41 +172,42 @@ class TunerViewModel : ViewModel() {
 
     private fun handlePitch(result: PitchDetector.Result?) {
         if (!_state.value.listening) return
-        if (result == null) {
-            registerMiss(0f)
+
+        if (result == null || result.confidence < MIN_ACCEPTED_CONFIDENCE) {
+            misses++
+            if (misses >= MISSES_BEFORE_CLEAR) {
+                frequencyHistory.clear()
+                _state.value = _state.value.copy(
+                    frequencyHz = null,
+                    targetHz = null,
+                    noteLabel = "—",
+                    cents = 0.0,
+                    confidence = result?.confidence ?: 0f,
+                    status = PitchStatus.WAITING,
+                )
+            } else {
+                _state.value = _state.value.copy(
+                    confidence = result?.confidence ?: 0f,
+                )
+            }
             return
         }
-
-        val state = _state.value
-        val measurement = resolveMeasurement(state, result.frequencyHz.toDouble())
-        if (measurement == null) {
-            registerMiss(result.confidence)
-            return
-        }
-
-        val requiredConfidence = when {
-            state.mode == Mode.GUITAR && measurement.target.frequencyHz <= LOW_STRING_MAX_HZ ->
-                LOW_STRING_MIN_ACCEPTED_CONFIDENCE
-            else -> MIN_ACCEPTED_CONFIDENCE
-        }
-        if (result.confidence < requiredConfidence) {
-            registerMiss(result.confidence)
-            return
-        }
-
-        if (!confirmTarget(measurement.target.label, state)) {
-            _state.value = _state.value.copy(confidence = result.confidence)
-            return
-        }
-
-        val switchingTarget = state.frequencyHz != null && state.noteLabel != measurement.target.label
-        if (switchingTarget) frequencyHistory.clear()
 
         misses = 0
-        pushFrequency(measurement.fundamentalFrequencyHz)
+        pushFrequency(result.frequencyHz.toDouble())
         val stableFrequency = median(frequencyHistory)
         val fresh = _state.value
-        val cents = MusicTheory.centsBetween(stableFrequency, measurement.target.frequencyHz)
+
+        val target = when (fresh.mode) {
+            Mode.CHROMATIC -> {
+                val nearest = MusicTheory.nearestNote(stableFrequency, fresh.a4Hz)
+                Target(nearest.label, nearest.frequencyHz)
+            }
+
+            Mode.GUITAR -> guitarTarget(fresh, stableFrequency)
+        }
+
+        val cents = MusicTheory.centsBetween(stableFrequency, target.frequencyHz)
         val status = when {
             abs(cents) <= IN_TUNE_CENTS && result.confidence >= IN_TUNE_CONFIDENCE -> PitchStatus.IN_TUNE
             cents < 0.0 -> PitchStatus.FLAT
@@ -244,8 +216,8 @@ class TunerViewModel : ViewModel() {
 
         _state.value = fresh.copy(
             frequencyHz = stableFrequency,
-            targetHz = measurement.target.frequencyHz,
-            noteLabel = measurement.target.label,
+            targetHz = target.frequencyHz,
+            noteLabel = target.label,
             cents = cents.coerceIn(-DISPLAY_CENTS_LIMIT, DISPLAY_CENTS_LIMIT),
             confidence = result.confidence,
             status = status,
@@ -253,105 +225,27 @@ class TunerViewModel : ViewModel() {
         )
     }
 
-    private fun resolveMeasurement(state: UiState, detectedHz: Double): Measurement? {
-        return when (state.mode) {
-            Mode.CHROMATIC -> {
-                val nearest = MusicTheory.nearestNote(detectedHz, state.a4Hz)
-                Measurement(
-                    target = Target(nearest.label, nearest.frequencyHz),
-                    fundamentalFrequencyHz = detectedHz,
-                )
-            }
-
-            Mode.GUITAR -> {
-                val selected = state.selectedStringIndex
-                val sourceStrings = if (selected != null && selected in state.preset.strings.indices) {
-                    listOf(state.preset.strings[selected])
-                } else {
-                    state.preset.strings
-                }
-                val candidates = sourceStrings.map { string ->
-                    GuitarPitchMatcher.Candidate(
-                        label = string.label,
-                        fundamentalHz = MusicTheory.frequencyForMidi(string.midi, state.a4Hz),
-                    )
-                }
-                val match = GuitarPitchMatcher.match(
-                    detectedHz = detectedHz,
-                    candidates = candidates,
-                    maxDistanceCents = if (selected == null) {
-                        GUITAR_AUTO_MATCH_MAX_CENTS
-                    } else {
-                        GUITAR_MANUAL_MATCH_MAX_CENTS
-                    },
-                ) ?: return null
-
-                Measurement(
-                    target = Target(match.label, match.targetHz),
-                    fundamentalFrequencyHz = match.normalizedFrequencyHz,
-                )
+    private fun guitarTarget(state: UiState, frequencyHz: Double): Target {
+        val strings = state.preset.strings
+        val selected = state.selectedStringIndex
+        val targetString = if (selected != null && selected in strings.indices) {
+            strings[selected]
+        } else {
+            strings.minBy { string ->
+                val targetHz = MusicTheory.frequencyForMidi(string.midi, state.a4Hz)
+                abs(MusicTheory.centsBetween(frequencyHz, targetHz))
             }
         }
-    }
 
-    private fun confirmTarget(label: String, state: UiState): Boolean {
-        if (state.mode == Mode.GUITAR && state.selectedStringIndex != null) {
-            clearPendingTarget()
-            return true
-        }
-
-        val currentLabel = state.noteLabel.takeIf { state.frequencyHz != null && it != "—" }
-        if (currentLabel == label) {
-            clearPendingTarget()
-            return true
-        }
-
-        if (pendingTargetLabel == label) {
-            pendingTargetHits++
-        } else {
-            pendingTargetLabel = label
-            pendingTargetHits = 1
-        }
-
-        val requiredHits = if (currentLabel == null) {
-            INITIAL_TARGET_CONFIRM_FRAMES
-        } else {
-            TARGET_SWITCH_CONFIRM_FRAMES
-        }
-        if (pendingTargetHits < requiredHits) return false
-
-        clearPendingTarget()
-        return true
-    }
-
-    private fun registerMiss(confidence: Float) {
-        misses++
-        clearPendingTarget()
-
-        if (misses >= MISSES_BEFORE_CLEAR) {
-            frequencyHistory.clear()
-            _state.value = _state.value.copy(
-                frequencyHz = null,
-                targetHz = null,
-                noteLabel = "—",
-                cents = 0.0,
-                confidence = confidence,
-                status = PitchStatus.WAITING,
-            )
-        } else {
-            _state.value = _state.value.copy(confidence = confidence)
-        }
+        return Target(
+            label = targetString.label,
+            frequencyHz = MusicTheory.frequencyForMidi(targetString.midi, state.a4Hz),
+        )
     }
 
     private fun resetTracking() {
         frequencyHistory.clear()
         misses = 0
-        clearPendingTarget()
-    }
-
-    private fun clearPendingTarget() {
-        pendingTargetLabel = null
-        pendingTargetHits = 0
     }
 
     private fun pushFrequency(value: Double) {
@@ -380,17 +274,11 @@ class TunerViewModel : ViewModel() {
 
     private companion object {
         const val HISTORY_SIZE = 5
-        const val MISSES_BEFORE_CLEAR = 8
-        const val INITIAL_TARGET_CONFIRM_FRAMES = 2
-        const val TARGET_SWITCH_CONFIRM_FRAMES = 3
-        const val MIN_ACCEPTED_CONFIDENCE = 0.55f
-        const val LOW_STRING_MIN_ACCEPTED_CONFIDENCE = 0.48f
-        const val LOW_STRING_MAX_HZ = 120.0
-        const val IN_TUNE_CONFIDENCE = 0.65f
+        const val MISSES_BEFORE_CLEAR = 7
+        const val MIN_ACCEPTED_CONFIDENCE = 0.45f
+        const val IN_TUNE_CONFIDENCE = 0.60f
         const val IN_TUNE_CENTS = 3.0
         const val DISPLAY_CENTS_LIMIT = 50.0
-        const val GUITAR_AUTO_MATCH_MAX_CENTS = 180.0
-        const val GUITAR_MANUAL_MATCH_MAX_CENTS = 450.0
         const val MIN_A4_HZ = 430.0
         const val MAX_A4_HZ = 450.0
         const val SIGNAL_FLOOR = 0.0005f
