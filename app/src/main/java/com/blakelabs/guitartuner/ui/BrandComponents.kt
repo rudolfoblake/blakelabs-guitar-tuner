@@ -215,7 +215,7 @@ private fun IconButton(onClick: () -> Unit) {
 @Composable
 internal fun BrandMark(size: Dp) {
     Image(
-        painter = painterResource(R.drawable.blake_labs_logo),
+        painter = painterResource(R.drawable.blake_labs_logo_official),
         contentDescription = "Blake Labs alien logo",
         contentScale = ContentScale.Fit,
         modifier = Modifier.size(size),
