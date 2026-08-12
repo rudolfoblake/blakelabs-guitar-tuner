@@ -13,6 +13,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Additional and custom tuning presets.
 - Reference tone generator.
 
+## [0.3.2] - 2026-08-12
+
+### Fixed
+
+- Restored the official Blake Labs alien eye proportions in the shared launcher, splash and in-app brand asset.
+- Rebuilt the source-derived WebP at 512 × 512 so Android scaling no longer amplifies the previous low-resolution reconstruction.
+
+### Changed
+
+- Bumped Android application to version 0.3.2 / versionCode 9.
+
 ## [0.3.1] - 2026-08-12
 
 ### Changed
