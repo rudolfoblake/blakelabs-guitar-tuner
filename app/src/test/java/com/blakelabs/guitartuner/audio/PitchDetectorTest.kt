@@ -5,6 +5,7 @@ import kotlin.math.exp
 import kotlin.math.sin
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -45,6 +46,19 @@ class PitchDetectorTest {
     @Test
     fun `rejects silence`() {
         assertNull(detector.detect(ShortArray(4096)))
+    }
+
+    @Test
+    fun `rejects a constant DC offset after centering`() {
+        assertNull(detector.detect(ShortArray(4096) { 2_000 }))
+    }
+
+    @Test
+    fun `validates detector configuration`() {
+        assertThrows(IllegalArgumentException::class.java) { PitchDetector(sampleRate = 0) }
+        assertThrows(IllegalArgumentException::class.java) {
+            PitchDetector(sampleRate = sampleRate, minFrequencyHz = 100f, maxFrequencyHz = 100f)
+        }
     }
 
     private fun sineWave(frequency: Double, size: Int = 4096): ShortArray =

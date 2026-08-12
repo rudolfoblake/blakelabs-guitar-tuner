@@ -8,11 +8,37 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Planned
 
-- Re-introduce low-E harmonic handling in an isolated, physically validated change.
 - Additional physical-device tuning validation across multiple Android microphones.
 - Strobe tuning mode.
 - Additional and custom tuning presets.
 - Reference tone generator.
+
+## [0.3.0] - 2026-08-12
+
+### Fixed
+
+- Restored low-E second-harmonic folding as an isolated runtime change, without restoring the branding/resource changes associated with the failed 0.2.2 build.
+- Added automatic-target hysteresis so a single detector outlier cannot switch guitar strings.
+- Serialized audio callbacks onto the ViewModel scope and rejected callbacks from stale capture sessions.
+- Replaced competing permission/lifecycle microphone controls with one derived capture state.
+- Made `AudioRecord` shutdown idempotent so unexpected read failures cannot retain the microphone.
+- Preserved samples from irregular vendor read sizes instead of assuming every read equals the configured hop.
+
+### Changed
+
+- Added dedicated confidence gates for low strings and stricter gates for normal strings.
+- Reused YIN scratch buffers to reduce allocation and garbage collection in the real-time audio path.
+- Changed the gauge animation to critical damping so UI motion cannot overshoot the measured cents value.
+- Disabled Android backup and cleartext traffic as defense-in-depth for the offline privacy boundary.
+- Bumped Android application to version 0.3.0 / versionCode 7.
+
+### Added
+
+- Checked-in Gradle 9.5 wrapper with distribution SHA-256 verification.
+- GitHub Actions quality gate for unit tests, lint, debug assembly and release assembly.
+- Dependabot configuration for Gradle and GitHub Actions dependencies.
+- Regression coverage for low-E harmonic drift, Drop D ambiguity, DC offset and invalid detector configuration.
+- A repeatable physical-device and release validation checklist.
 
 ## [0.2.4] - 2026-08-09
 

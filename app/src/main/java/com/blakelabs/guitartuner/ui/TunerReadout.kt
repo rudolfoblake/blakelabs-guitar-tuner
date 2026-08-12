@@ -151,7 +151,8 @@ private fun TunerGauge(
 ) {
     val animatedCents by animateFloatAsState(
         targetValue = cents.coerceIn(-50f, 50f),
-        animationSpec = spring(dampingRatio = 0.74f, stiffness = 390f),
+        // Critical damping keeps the gauge responsive without visually overshooting a measurement.
+        animationSpec = spring(dampingRatio = 1f, stiffness = 500f),
         label = "needle",
     )
 

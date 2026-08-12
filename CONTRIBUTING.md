@@ -22,7 +22,7 @@ Please preserve the project's core constraints:
 Run local unit tests with:
 
 ```bash
-./tools/build-debug.sh :app:testDebugUnitTest
+./gradlew --no-daemon :app:testDebugUnitTest
 ```
 
 Build a debug APK with:
@@ -33,7 +33,18 @@ Build a debug APK with:
 
 On Windows use `tools\build-debug.ps1` instead.
 
-There is currently no CI workflow. Run relevant validation locally and describe it in the pull request.
+Run the same local quality gate used by CI with:
+
+```bash
+./gradlew --no-daemon \
+  :app:testDebugUnitTest \
+  :app:lintDebug \
+  :app:assembleDebug \
+  :app:assembleRelease
+```
+
+CI must pass before merging. DSP changes also require the relevant physical-device checks from
+[`docs/VALIDATION.md`](docs/VALIDATION.md); synthetic tones alone are not sufficient evidence.
 
 ## Pull requests
 

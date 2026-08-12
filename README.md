@@ -1,5 +1,7 @@
 # Blake Labs Guitar Tuner
 
+[![Android CI](https://github.com/rudolfoblake/blakelabs-guitar-tuner/actions/workflows/android.yml/badge.svg)](https://github.com/rudolfoblake/blakelabs-guitar-tuner/actions/workflows/android.yml)
+
 **A precise Android guitar tuner. Free. Offline. No ads. No trackers. No account. No bullshit.**
 
 Because somehow humanity managed to put a banner ad between a guitarist and an E string.
@@ -12,6 +14,7 @@ Blake Labs Guitar Tuner is a small, privacy-first Android tuner built for fast v
 - **Chromatic mode** for anything that makes a reasonably stable note.
 - **Standard, Drop D and DADGAD** presets.
 - **YIN-based pitch detection** implemented in-project, with no DSP black box.
+- **Harmonic-aware low-string matching** so a strong E2 second harmonic remains E2.
 - **Independent SIGNAL and LOCK meters** so microphone capture and pitch confidence are visible separately.
 - **±3 cent in-tune lock** with clear flat / in-tune / sharp feedback.
 - **Median smoothing** to keep the needle useful instead of caffeinated.
@@ -49,7 +52,10 @@ AudioRecord (mono PCM16)
 PitchDetector (YIN / CMNDF)
    │
    ▼
-Median stabilization
+GuitarPitchMatcher (fundamental / second harmonic)
+   │
+   ▼
+Median stabilization + target hysteresis
    │
    ├────► Detector confidence ────► LOCK meter
    │
@@ -71,7 +77,7 @@ Requirements:
 
 - Android Studio with Android SDK 36
 - JDK 17+
-- Gradle 9.5 if building without the wrapper JAR
+- no system Gradle installation; the checked-in wrapper pins and verifies Gradle 9.5
 
 The project targets Android API 36 and supports Android 8.0 / API 26 and newer.
 
@@ -87,7 +93,8 @@ macOS / Linux:
 ./tools/build-debug.sh
 ```
 
-The helper downloads the pinned Gradle distribution into `.gradle-local/` when needed. Android Studio can also import the project normally.
+The standard Gradle wrapper downloads the pinned distribution and verifies its SHA-256 checksum.
+Android Studio can also import the project normally.
 
 Debug APK:
 
@@ -95,7 +102,8 @@ Debug APK:
 app/build/outputs/apk/debug/app-debug.apk
 ```
 
-> CI is intentionally not configured yet. We are building the instrument before building a tiny bureaucracy around the instrument.
+Every pull request and push to `main` runs unit tests, Android lint, debug assembly and release assembly.
+The full validation procedure is documented in [`docs/VALIDATION.md`](docs/VALIDATION.md).
 
 ## Tuning accuracy
 

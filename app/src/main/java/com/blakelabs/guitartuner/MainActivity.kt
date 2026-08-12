@@ -53,12 +53,14 @@ class MainActivity : ComponentActivity() {
                     }
                     var shouldListen by remember { mutableStateOf(true) }
                     var showBrandSplash by rememberSaveable { mutableStateOf(true) }
+                    var lifecycleStarted by remember {
+                        mutableStateOf(lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED))
+                    }
 
                     val permissionLauncher = rememberLauncherForActivityResult(
                         contract = ActivityResultContracts.RequestPermission(),
                     ) { granted ->
                         microphoneGranted = granted
-                        if (granted && shouldListen) tunerViewModel.start()
                     }
 
                     LaunchedEffect(Unit) {
@@ -68,34 +70,28 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    LaunchedEffect(microphoneGranted, shouldListen, showBrandSplash) {
-                        if (!showBrandSplash && microphoneGranted && shouldListen) {
-                            tunerViewModel.start()
-                        } else {
-                            tunerViewModel.stop()
+                    DisposableEffect(lifecycle, context) {
+                        val observer = LifecycleEventObserver { _, event ->
+                            lifecycleStarted = lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                            if (event == Lifecycle.Event.ON_RESUME) {
+                                // Permission can change while the user is in Android settings.
+                                microphoneGranted =
+                                    context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) ==
+                                    PackageManager.PERMISSION_GRANTED
+                            }
                         }
+                        lifecycle.addObserver(observer)
+                        onDispose { lifecycle.removeObserver(observer) }
                     }
 
-                    if (!showBrandSplash) {
-                        DisposableEffect(lifecycle, microphoneGranted, shouldListen) {
-                            val observer = LifecycleEventObserver { _, event ->
-                                when (event) {
-                                    Lifecycle.Event.ON_START -> {
-                                        if (microphoneGranted && shouldListen) {
-                                            tunerViewModel.start()
-                                        }
-                                    }
+                    val captureEnabled =
+                        !showBrandSplash && microphoneGranted && shouldListen && lifecycleStarted
+                    LaunchedEffect(captureEnabled) {
+                        if (captureEnabled) tunerViewModel.start() else tunerViewModel.stop()
+                    }
 
-                                    Lifecycle.Event.ON_STOP -> tunerViewModel.stop()
-                                    else -> Unit
-                                }
-                            }
-                            lifecycle.addObserver(observer)
-                            onDispose {
-                                lifecycle.removeObserver(observer)
-                                tunerViewModel.stop()
-                            }
-                        }
+                    DisposableEffect(tunerViewModel) {
+                        onDispose { tunerViewModel.stop() }
                     }
 
                     if (showBrandSplash) {

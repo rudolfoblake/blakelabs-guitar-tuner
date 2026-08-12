@@ -11,14 +11,15 @@ android {
         applicationId = "com.blakelabs.guitartuner"
         minSdk = 26
         targetSdk = 36
-        versionCode = 6
-        versionName = "0.2.4"
+        versionCode = 7
+        versionName = "0.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
+            isDebuggable = false
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -35,7 +36,11 @@ android {
 
     buildFeatures {
         compose = true
-        buildConfig = true
+    }
+
+    lint {
+        abortOnError = true
+        checkReleaseBuilds = true
     }
 
     packaging {
@@ -51,6 +56,7 @@ dependencies {
 
     implementation("androidx.activity:activity-compose:1.13.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
 
     implementation("androidx.compose.foundation:foundation")

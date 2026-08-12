@@ -60,7 +60,8 @@ mode selector
 
 ## Motion and feedback
 
-- The needle uses a damped spring: responsive, but not jittery.
+- The needle uses a critically damped spring: responsive, without decorative overshoot that could
+  be mistaken for a pitch change.
 - Entering the ±3-cent lock window triggers one haptic event when haptics are enabled.
 - The branded launch screen is intentionally brief; it should identify the product, not become a toll booth.
 
