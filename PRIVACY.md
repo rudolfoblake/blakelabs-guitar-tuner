@@ -14,6 +14,8 @@ Microphone samples are:
 - not uploaded;
 - not shared with Blake Labs or third parties.
 
+Android application backup is disabled, and no microphone sample or tuning session is persisted.
+
 ## Network
 
 The application does **not** request the Android Internet permission.

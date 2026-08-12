@@ -17,16 +17,30 @@ class PitchDetector(
     private val yinThreshold: Float = 0.18f,
     private val rmsGate: Float = 0.0015f,
 ) {
+    init {
+        require(sampleRate > 0) { "sampleRate must be positive" }
+        require(minFrequencyHz > 0f) { "minFrequencyHz must be positive" }
+        require(maxFrequencyHz > minFrequencyHz) { "maxFrequencyHz must exceed minFrequencyHz" }
+        require(yinThreshold in 0f..1f) { "yinThreshold must be between zero and one" }
+        require(rmsGate >= 0f) { "rmsGate must not be negative" }
+    }
+
     data class Result(
         val frequencyHz: Float,
         val confidence: Float,
         val rms: Float,
     )
 
+    // One detector is owned by one audio thread. Reusing these buffers avoids allocating roughly
+    // 24 KB on every analysis hop and keeps GC out of the real-time capture path.
+    private var normalized = FloatArray(0)
+    private var difference = FloatArray(0)
+    private var cmndf = FloatArray(0)
+
     fun detect(samples: ShortArray): Result? {
         if (samples.size < MIN_ANALYSIS_SAMPLES) return null
 
-        val normalized = FloatArray(samples.size)
+        ensureNormalizedCapacity(samples.size)
         var mean = 0.0
         for (sample in samples) mean += sample.toDouble()
         mean /= samples.size
@@ -47,7 +61,8 @@ class PitchDetector(
             .coerceAtMost(samples.size / 2 - 1)
         if (maxTau <= minTau + 2) return null
 
-        val difference = FloatArray(maxTau + 1)
+        ensureTauCapacity(maxTau + 1)
+        difference[0] = 0f
         val comparisonLength = samples.size - maxTau
 
         for (tau in 1..maxTau) {
@@ -61,7 +76,6 @@ class PitchDetector(
             difference[tau] = sum.toFloat()
         }
 
-        val cmndf = FloatArray(maxTau + 1)
         cmndf[0] = 1f
         var runningSum = 0.0
         for (tau in 1..maxTau) {
@@ -83,7 +97,10 @@ class PitchDetector(
         }
 
         if (tau > maxTau) {
-            tau = (minTau..maxTau).minByOrNull { cmndf[it] } ?: return null
+            tau = minTau
+            for (candidate in minTau + 1..maxTau) {
+                if (cmndf[candidate] < cmndf[tau]) tau = candidate
+            }
             if (cmndf[tau] > FALLBACK_MAX_CMND) return null
         }
 
@@ -111,6 +128,15 @@ class PitchDetector(
 
         val offset = 0.5f * (left - right) / denominator
         return index + offset.coerceIn(-1f, 1f)
+    }
+
+    private fun ensureNormalizedCapacity(size: Int) {
+        if (normalized.size < size) normalized = FloatArray(size)
+    }
+
+    private fun ensureTauCapacity(size: Int) {
+        if (difference.size < size) difference = FloatArray(size)
+        if (cmndf.size < size) cmndf = FloatArray(size)
     }
 
     private companion object {
