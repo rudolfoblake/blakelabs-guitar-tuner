@@ -13,6 +13,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Additional and custom tuning presets.
 - Reference tone generator.
 
+## [0.3.3] - 2026-08-12
+
+### Fixed
+
+- Separated the launcher foreground from the shared brand asset and placed the official logo inside Android's 72 dp adaptive-icon viewport.
+- Prevented OEM launcher masks from scaling and clipping the face while retaining the full-proportion logo inside the app and splash.
+
+### Changed
+
+- Bumped Android application to version 0.3.3 / versionCode 10.
+
 ## [0.3.2] - 2026-08-12
 
 ### Fixed
