@@ -13,6 +13,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Additional and custom tuning presets.
 - Reference tone generator.
 
+## [0.3.1] - 2026-08-12
+
+### Changed
+
+- Updated the Compose BOM to 2026.06.01, Kotlin/Compose toolchain to 2.4.10, Lifecycle to 2.11.0 and Gradle Wrapper to 9.7.0.
+- Raised `compileSdk` to API 37 while retaining `targetSdk` 36 and `minSdk` 26, so runtime compatibility and supported devices do not change.
+- Grouped related Lifecycle and Kotlin toolchain updates in Dependabot to avoid duplicate, independently failing pull requests.
+- Bumped Android application to version 0.3.1 / versionCode 8.
+
 ## [0.3.0] - 2026-08-12
 
 ### Fixed

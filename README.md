@@ -75,11 +75,11 @@ More detail: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 Requirements:
 
-- Android Studio with Android SDK 36
+- Android Studio with Android SDK 37
 - JDK 17+
-- no system Gradle installation; the checked-in wrapper pins and verifies Gradle 9.5
+- no system Gradle installation; the checked-in wrapper pins and verifies Gradle 9.7
 
-The project targets Android API 36 and supports Android 8.0 / API 26 and newer.
+The project compiles against Android API 37, targets API 36, and supports Android 8.0 / API 26 and newer.
 
 Windows PowerShell:
 

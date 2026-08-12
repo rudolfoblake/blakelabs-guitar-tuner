@@ -10,7 +10,7 @@ This project has two quality gates. Neither replaces the other:
 Requirements:
 
 - JDK 17 or newer;
-- Android SDK 36;
+- Android SDK 37;
 - network access for the first dependency resolution.
 
 Run the complete CI-equivalent gate:
