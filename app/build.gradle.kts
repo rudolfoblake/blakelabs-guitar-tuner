@@ -41,8 +41,6 @@ android {
     lint {
         abortOnError = true
         checkReleaseBuilds = true
-        htmlReport = true
-        sarifReport = true
     }
 
     packaging {
