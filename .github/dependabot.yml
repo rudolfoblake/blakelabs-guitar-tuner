@@ -6,6 +6,13 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      lifecycle:
+        patterns:
+          - "androidx.lifecycle:*"
+      kotlin-toolchain:
+        patterns:
+          - "org.jetbrains.kotlin*"
 
   - package-ecosystem: github-actions
     directory: /
