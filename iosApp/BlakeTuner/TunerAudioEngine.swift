@@ -10,7 +10,7 @@ final class TunerAudioEngine {
     }
 
     var onSignal: ((Float) -> Void)?
-    var onFrame: ((TunerProcessor.Frame) -> Void)?
+    var onFrame: ((TunerFrame) -> Void)?
     var onError: ((String) -> Void)?
 
     private let engine = AVAudioEngine()
