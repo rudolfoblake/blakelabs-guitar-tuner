@@ -5,6 +5,17 @@ import com.blakelabs.guitartuner.audio.MusicTheory
 import com.blakelabs.guitartuner.audio.PitchDetector
 import kotlin.math.abs
 
+/** Swift-friendly immutable result from one accepted tuner analysis frame. */
+data class TunerFrame(
+    val noteLabel: String,
+    val frequencyHz: Double,
+    val targetHz: Double,
+    val cents: Double,
+    val confidence: Float,
+    val rms: Float,
+    val status: Int,
+)
+
 /**
  * Platform-neutral tuner state machine used by iOS and available to future Android refactors.
  *
@@ -12,16 +23,6 @@ import kotlin.math.abs
  * mode 0 = guitar, 1 = chromatic; preset 0 = Standard, 1 = Drop D, 2 = DADGAD.
  */
 class TunerProcessor(sampleRate: Int) {
-    data class Frame(
-        val noteLabel: String,
-        val frequencyHz: Double,
-        val targetHz: Double,
-        val cents: Double,
-        val confidence: Float,
-        val rms: Float,
-        val status: Int,
-    )
-
     private data class GuitarString(val label: String, val midi: Int)
     private data class Measurement(
         val label: String,
@@ -50,7 +51,7 @@ class TunerProcessor(sampleRate: Int) {
         preset: Int,
         selectedStringIndex: Int,
         a4Hz: Double,
-    ): Frame? {
+    ): TunerFrame? {
         val result = detector.detect(samples) ?: return registerMiss()
         val safeA4 = a4Hz.coerceIn(MIN_A4_HZ, MAX_A4_HZ)
         val measurement = when (mode) {
@@ -86,7 +87,7 @@ class TunerProcessor(sampleRate: Int) {
             else -> STATUS_SHARP
         }
 
-        return Frame(
+        return TunerFrame(
             noteLabel = measurement.label,
             frequencyHz = stableFrequency,
             targetHz = measurement.targetHz,
@@ -171,7 +172,7 @@ class TunerProcessor(sampleRate: Int) {
         return true
     }
 
-    private fun registerMiss(): Frame? {
+    private fun registerMiss(): TunerFrame? {
         misses++
         clearPendingTarget()
         if (misses >= MISSES_BEFORE_CLEAR) {
