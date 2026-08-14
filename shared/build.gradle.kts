@@ -7,7 +7,7 @@ plugins {
 }
 
 kotlin {
-    android {
+    androidLibrary {
         namespace = "com.blakelabs.guitartuner.shared"
         compileSdk = 37
         minSdk = 26
