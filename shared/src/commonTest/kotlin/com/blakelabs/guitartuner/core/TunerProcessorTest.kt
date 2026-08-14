@@ -14,7 +14,7 @@ class TunerProcessorTest {
         val processor = TunerProcessor(48_000)
         val samples = sine(82.4069, 48_000, 4096)
 
-        var frame: TunerProcessor.Frame? = null
+        var frame: TunerFrame? = null
         repeat(3) {
             frame = processor.analyze(samples, 0, 0, -1, 440.0) ?: frame
         }
@@ -29,7 +29,7 @@ class TunerProcessorTest {
         val processor = TunerProcessor(48_000)
         val samples = sine(440.0, 48_000, 4096)
 
-        var frame: TunerProcessor.Frame? = null
+        var frame: TunerFrame? = null
         repeat(3) {
             frame = processor.analyze(samples, 1, 0, -1, 440.0) ?: frame
         }
