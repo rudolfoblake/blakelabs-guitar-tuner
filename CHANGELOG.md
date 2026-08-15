@@ -6,8 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+### Added
+
+- Kotlin Multiplatform `shared` module targeting Android, iOS device and Apple-silicon iOS Simulator.
+- Native SwiftUI iPhone application with `AVAudioEngine` microphone capture, guitar/chromatic modes, Standard/Drop D/DADGAD presets, A4 calibration, signal/lock feedback and haptic in-tune confirmation.
+- Shared `TunerProcessor` for iOS with the same confidence gates, target hysteresis, median stabilization and ±3-cent lock policy used by the Android tuner behavior.
+- iOS simulator CI that tests the shared core, links the Kotlin framework and builds the SwiftUI app.
+- iOS build and physical-device validation guide.
+
+### Changed
+
+- Moved `PitchDetector`, `MusicTheory` and `GuitarPitchMatcher` out of the Android application module and into common Kotlin code so Android and iPhone use one DSP implementation.
+- Android now consumes the shared KMP module without changing its existing `AudioRecord`, ViewModel or Compose lifecycle behavior.
+
 ### Planned
 
+- Physical iPhone acoustic validation and App Store icon/signing packaging.
 - Additional physical-device tuning validation across multiple Android microphones.
 - Strobe tuning mode.
 - Additional and custom tuning presets.

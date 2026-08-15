@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "BlakeLabsGuitarTuner"
 include(":app")
+include(":shared")

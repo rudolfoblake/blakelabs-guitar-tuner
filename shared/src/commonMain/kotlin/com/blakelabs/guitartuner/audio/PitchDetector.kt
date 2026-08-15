@@ -7,8 +7,8 @@ import kotlin.math.sqrt
 /**
  * YIN pitch detector tuned for monophonic guitar input.
  *
- * The implementation intentionally stays dependency-free so the signal path is auditable,
- * offline, and boring in the best possible way. No SDK gets to listen over our shoulder.
+ * The detector lives in commonMain so Android and iOS execute the exact same DSP implementation.
+ * It is dependency-free and reuses its scratch buffers to keep allocations out of the hot path.
  */
 class PitchDetector(
     private val sampleRate: Int,
@@ -31,8 +31,6 @@ class PitchDetector(
         val rms: Float,
     )
 
-    // One detector is owned by one audio thread. Reusing these buffers avoids allocating roughly
-    // 24 KB on every analysis hop and keeps GC out of the real-time capture path.
     private var normalized = FloatArray(0)
     private var difference = FloatArray(0)
     private var cmndf = FloatArray(0)
